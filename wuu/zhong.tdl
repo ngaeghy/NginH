@@ -1,0 +1,2992 @@
+;;; -*- Mode: TDL; Coding: utf-8 -*-
+
+;;; Zhong [|] Grammar
+;;;
+;;; This file was first created on:
+;;;     Tue Jun 30 19:43:27 UTC 2009
+;;; based on Matrix customization system version of:
+;;;     Tue Jun 23 20:36:41 UTC 2009
+;;;
+;;; Authors: Luis Morgado da Costa, Francis Bond, Fan Zhenzhen,
+;;; Sanghoun Song, Nat Hillard, Dan Flickinger, Chunlei Yang
+;;;
+
+
+; 
+; ta 20 sui                       OK
+; ta SHI 20 sui                   ok but it's a confirmation. (
+; zhege pingguo 10 kuai  
+; zhege pingguo 10 kuai qian
+; zhege pingguo 10 kuai reminbi
+
+; women 3 ge ren.                 OK
+; women shi 3 ge ren.             OK it's emphasize
+
+; tamen   3 ge feichan piaoliang de ren.      ;  less... ok feels like a subject of something. but yeah context allows: e.g. Nimen jige piaoliang de ren, jige bupiaoliang de ren?  women 3 ge feichan piaoliang de ren 3 ge bu piaoliang de ren
+
+
+; 
+; 
+; 
+;数词做谓语
+; 1. 日期      jintian  +  zhouyi //   xinqisan. // jintian zhoumo   //      All OK
+; 2. 年龄      ta 23 sui      
+; 3. 价格      zhe ge pingguo   3 kuai qian      
+; 4. shijian   xianzai   ba dian zhong
+;
+;
+;  also
+;  zhe ge bisa 六 场.       (???? proably weird... no)  
+
+; zhe ge dangao you ji kuai ?    ok
+
+; zhe ge dangao ji kuai ?       not ok 
+; zhe ge dangao 3 kuai.         not ok       
+
+; 你几个人？
+; 这个蛋糕几块？ not ok
+
+;============================================================================
+; IMPLEMENTATION NOTES:
+;============================================================================
+; This grammar has had multiple authors over the years. The early stages of   
+; implementation seriously lacked documentation. This is an attempt to 
+; collect some insights or design choices that should be taken into
+; consideration by future developers.
+;============================================================================
+
+;============================================================================
+; HEAD FEATURES AND THEIR USAGES:
+;============================================================================
+; >>> [LIGHT luk] / [LIGHT +] / [LIGHT -]
+;
+; LIGHT is first introduced by the matrix with the following piece of
+; documentation "is used to distinguish shorter words from longer ones, or
+; constituents which are lexical or nearly so from larger phrases.
+; It is inspired by the work of Abeille and Godard (e.g., 2003)
+;
+; By default, from the matrix:
+; 'lex-synsem' are LIGHT + and 'phr-synsem' are LIGHT -
+;
+; [LIGHT -] is now also being introduced to Noun-Noun compounds to block the
+; attachment of morphemes like 们 after the compound has been formed.
+;
+;
+; >>> [CARDINAL bool] / [CARDINAL +] / [CARDINAL -]
+;
+; This is currently only used for types with head value 'num', marking them
+; as [CARDINAL +]. As such, this is currently another way to select for
+; numbers.
+;============================================================================
+
+;============================================================================
+; SYNSEM FEATURES AND THEIR USAGES:
+;============================================================================
+
+;============================================================================
+
+;; SSH 2014-09-04: The style feature for efficient generation
+sign :+
+ [ STYLE style,
+   IDIOMATIC luk ].
+
+
+
+;============================================================================
+; STYLE
+;============================================================================
+; Style
+;      ---- strict
+;
+;      ---- robust:
+;                  ---- spoken
+;                  ---- unproductive
+;                  ---- dialect
+;============================================================================
+style :=  avm & [ WRITTEN luk ].
+strict := style &  [ WRITTEN + ].
+robust := style.
+spoken := robust & [ WRITTEN - ].
+mal := robust.
+dialect := robust. 
+;============================================================================
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; WE CAN SELECT THINGS, e.g. COMPS, WITH FCHAR !!! (WORKS)
+; SO INSTEAD OF FCHAR, WE COULD HAVE THE WHOLE WORD
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; test_不_v := v_np_le &
+; """
+; This is a test to see if we could CHAR.FCHAR to select things!
+; DELETE ME ASAP
+; """
+;   [ STEM < "不" >,
+;     SYNSEM.LOCAL.CAT.HEAD [ CHAR [ FCHAR "不", LENGTH one ] ],
+;     SYNSEM [ LOCAL.CAT.VAL.COMPS < [ LOCAL.CAT.HEAD.CHAR.FCHAR "猫" ] >,
+;              LKEYS.KEYREL.PRED "_不_v_2_rel" ],
+;     TRAITS native_token_list ].
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+
+
+
+lex-rule :+ 
+ [ STYLE #style,
+   DTR.STYLE #style ].
+
+basic-unary-phrase :+ 
+  [ STYLE #style,
+    SYNSEM [ PAREN #paren,
+             PUNCTUATED #punc ],
+    ARGS < [ STYLE #style,
+	     SYNSEM [ PAREN #paren,
+                      PUNCTUATED #punc ] ] > ].
+
+
+synsem :+ 
+"""
+;; SSH 2014-12-19: BOUND is introduced. Lexical items with [BOUND +]
+;; cannot be combined with the other of itself.
+;; POSTCOMP is a feature to be used on HEAD to indicate the COMP's position is after the head.
+;; CH is defined in the COMPS list to indicate the position of COMPS: CH+ == COMP before HEAD, CH- == COMP after HEAD, allowing HEAD to have one COMP before and one COMP after
+
+
+CLASSIF  (THIS IS A TEST TO TRY TO MOVE IT AWAY FROM HEAD FEATURE), CURRENTLY WE'LL HAVE 2
+"""
+  [ PUNCTUATED luk,
+    INTERJECTED luk,
+    PAREN luk,
+    ASPECTED luk,
+    POSTCOMP luk,
+    CH luk,
+    BARE luk,
+    SPART spart,
+    UTTERED luk,
+    CLASSIF bool,       ;;;; TESTING
+    BOUND luk ].
+
+
+
+
+;============================================================================
+; SENTENCE FINAL PARTICLES
+;============================================================================
+spart := avm.
+not-crs := spart.
+not-ma := spart.
+crs := not-ma.
+ma := not-crs.
+no-spart := spart.
+not-crs-not-ma := not-crs & not-ma.
+
+
+
+
+
+
+;; SSH 2014-10-24: for chart mapping
+;; MATRIX REDEFINITION
+;; make STEM of type orthog(raphy) to pass up from/to/form
+sign-min := avm &
+  [ STEM orthog ].
+
+orthog := cons &
+  [ FROM string,
+    TO string ].
+
+
+;; SSH 2015-01-26: compound lexical items
+cpd := icons.
+;noun-noun := cpd.
+pred-pred := cpd. 
+rslt := pred-pred.
+parallel := pred-pred.
+
+card_rel := named_rel.
+symbol_rel := named_rel.
+
+
+; Constant Argument relation
+carg-relation := arg0-relation &
+  [ CARG string ].
+
+card-relation := carg-relation & arg1-relation &
+"""
+Cardinal Relation.
+[ARG0 individual] means that it is unspecified for 'ref-ind' or an 'event'.
+These are subspecified when it becomes either a noun or an adj-like number.
+"""
+  [ PRED card_rel,
+    ARG0 individual ].
+
+named-relation := noun-relation & carg-relation &
+  [ PRED named_rel ].
+
+
+
+symbol-relation := named-relation & arg1-relation &
+  [ PRED symbol_rel ].
+
+
+q_rel := predsort.
+every_q_rel := q_rel.
+exist_q_rel := q_rel.
+some_q_rel := exist_q_rel.
+many_q_rel := exist_q_rel.
+proper_q_rel := q_rel.
+pronoun_q_rel := q_rel.
+which_q_rel := q_rel.
+_how-many_q_rel := q_rel.
+generic_q_rel := q_rel.
+
+related_p_rel := predsort.
+compound_p_rel := related_p_rel.
+;poss_p_rel := related_p_rel.
+
+dem_rel := predsort.
+prox_dem_q_rel := dem_rel.
+dist_dem_q_rel := dem_rel.
+
+general_n_rel := predsort.
+
+pron_rel := general_n_rel.
+
+generic_n_rel := general_n_rel.
+thing_n_rel := generic_n_rel.
+place_n_rel := generic_n_rel.
+person_n_rel := generic_n_rel.
+time_n_rel := generic_n_rel & day_or_month_or_time_rel.
+day_or_month_or_time_rel := named_rel.
+month_n_rel := day_or_month_or_time_rel.
+day_n_rel := day_or_month_or_time_rel.
+date_n_rel := day_or_month_or_time_rel.
+
+;;; used in fragments
+;;;
+;;; do we need subtypes for different numbers of arguments
+unknown_v_rel := predsort.
+ellipsis_v_rel := predsort.
+
+
+; For fragments (DPF FCB 2005-08-22) expect to appear in the Matrix any moment now
+arg-ev-relation := event-relation &
+ [ ARG semarg ].
+unknown-v-relation := arg-ev-relation & 
+ [ PRED unknown_v_rel ].
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; LMC (2020.04.14)
+; Following what the ERG does for selected adverbs and prepositions, we are
+; trying to get separable verbs to behave like a verb that is selected/selects
+; a specific noun. If we follow the ERG, these verbs should introduce the
+; relations (the product of event + noun), and the noun should not introduce
+; any relation.
+; 
+;
+; The ERG is doing something like:
+;
+;
+;     rely_on_v1 := v_pp_e_le &
+;      [ ORTH < "rely" >,
+;        SYNSEM [ LKEYS [ --COMPKEY on_p_upon-sel_rel,
+; 			  KEYREL.PRED "_rely_v_on_rel" ],
+; 		  PHON.ONSET con ] ].
+;
+;     on_prtcl := p_np_ptcl_le &
+;      [ ORTH < "on" >,
+;	SYNSEM [ LKEYS.KEYREL.PRED _on_p_sel_rel,
+;		 PHON.ONSET voc ] ].
+;
+;     p_np_ptcl_le := norm_p_prtcl_lexent
+;     """
+;     Prep, np, sem empty              
+;     <ex>B relies on C.
+;     """
+;     .
+;
+;     norm_p_prtcl_lexent := p_prtcl_lexent &
+;       [ SYNSEM.LOCAL [ CAT.VAL.COMPS < [ LOCAL.CAT.VAL [ SPR *olist*,
+; 							 SPEC *anti_list* ] ] >,
+; 		       CONT [ RELS <! !>,
+; 			      HCONS <! !> ] ] ].
+;
+;
+;                               ;;; Rely on's ORTH is activated when it sees 'rely'  
+;                               ;;; But it introduces the predicate of "_rely_v_on_rel"   (note starting underscore)
+;                               ;;; 'Rely on' uses --COMPKEY to select  "on_p_upon-sel_rel"
+;                               ;;; 
+;                               ;;; 
+;                               ;;; 
+;                               ;;; 
+;
+;
+;     selected_rel := event_rel.
+;     selected_prep_rel := selected_rel & prep_rel.
+;
+;     on_p_sel_rel := selected_prep_rel.
+;     on_p_upon-sel_rel := selected_prep_rel.
+;     _on_p_sel_rel := on_p_sel_rel & on_p_upon-sel_rel.
+;
+;
+;                               ;;; 
+;                               ;;; 
+;                               ;;; 
+;                               ;;; 
+;
+;
+;     v_pp_e_le := main_verb & 
+;     """
+;     Cmps PP(sel,obl)                 
+;     <ex>B looked after C.
+;     """
+;       [ SYNSEM empty_prep_intrans_verb &
+;		[ LKEYS [ --COMPKEY #cmin,
+;			  --+COMPKEY #cmin ] ] ].
+;
+;     empty_prep_intrans_verb := basic_empty_prep_intrans_verb &
+;       [ LOCAL.CONT.RELS <! relation !> ].
+;
+;     basic_empty_prep_intrans_verb := twoarg_verb_synsem & prep_intrans_subst &
+;				empty_prep_intrans_lt &
+;       [ LOCAL [ CAT.VAL.COMPS < [ OPT - ] >,
+;		  CONT.RELS.LIST.FIRST #keyrel ],
+;	  LKEYS.KEYREL #keyrel ].
+;
+;
+;
+;
+;
+; However,
+;     selected-noun-rel := selected-rel & noun-relation.
+; doesn't work because the ARG0 for event-relation is 'event' and for
+; noun-relation is 'ref-ind'. 
+; 
+; 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+selected_rel := predsort
+"""
+selected_rel is a sister of norm_rel, and hence both types are not compatible.
+selected_rel is used to define semantically empty predicates (LKEYS.KEYREL.PRED selected_rel), 
+and is being used to allow some lexical entries (e.g. verbs) to require this type of relations in 
+their argument structure.
+""".
+
+norm_rel := predsort
+""" 
+""".
+
+selected_comp_rel := selected_rel
+"""
+""".
+
+n_nosem_selected := selected-lex & no-rels-hcons-icons-lex-item &
+"""
+This type is for nominal complements of separable verbs (verbs that have non-compositional semantics with special complements). These are selected by the verb, introduce no semantics on their own, but can be separated from the verb by things like aspect markers and certain modifiers.
+
+Added [BOUND +] from blocking them from being pumped through other rules that require SORT (e.g. time and place adp). Since these don't introduce any semantics they can't have a value for SORT.
+
+Added [LOC -] to block this from being pumped into locative adpositions.
+
+Added [MODIFIABLE -] for now (but this should revisited later).
+
+Added [NONSUBJ +] to block separable complements from ever becoming subjects.
+
+
+
+[FIXME] Given the syntactic nature of the bound complements, and the way they interact with a range of modifiers between the verb and bound complement, we expect the bound complements to preserve all its syntactic features (e.g. countability, noun types, etc.) this is not being done yet.
+
+**********
+[FIXED] A previous version of this type was breaking things during treebank. It could not be selected, although it will generate a nice parse if the corresponding v_np_sep_le was chosen instead (that verb selects the available n_nosem_selected as its complement).
+The reason for this was that the lexical entries were specifying inanimate in their PNG, and this was forcing the nouns to actually behave as having a referential index when in fact we are stating that they have no semantincs. It is not clear to me why the grammar was compiling. but after removing this the FFTB is happy.
+**********
+"""
+[ ARG-ST < >,
+  SYNSEM [ PAREN -,
+	   BOUND +,
+	   PUNCTUATED -,
+	   LOCAL [CAT [HEAD noun & [ LOC -,
+				     MODIFIABLE - ],
+		       NONSUBJ +,
+		       VAL [ COMPS < >,
+			     SUBJ < >,
+			     SPR < > ] ],
+		  CONT [ RELS <! !>,
+			 HCONS <! !> ] ] ] ].
+
+
+v_np_sep_le := transitive-sep-lex-item & nonque-item &
+	       verb-no-spr-item & main-verb-lex & aspect-rule-dtr &
+"""
+transitive-super-lex-item = takes an argument but has no ARG2 in the semantics.
+
+Added [OPT -] to SYNSEM.LOCAL.CAT.VAL.COMPS to guarantee that this is bound complement is always there. This should ensure that it doesn't get discharged by optional complement rules.
+
+"""
+  [ SYNSEM [ LOCAL [ CAT.VAL.COMPS < #comp &
+				   [ OPT -,
+				     LOCAL.CAT.HEAD.KEYS.KEY #key] >,
+		     CONT.HOOK.INDEX #compindex ],
+	     LKEYS [KEYREL.ARG1 #subj,
+		    --COMPKEY #key] ],
+    ARG-ST < [ LOCAL [ CAT.HEAD noun,
+		       CONT.HOOK.INDEX #subj ] ],
+	     #comp &
+	     [ LOCAL [ CAT [ VAL [ SPR < >,
+				   COMPS < > ],
+			     HEAD noun  ],
+		       CONT.HOOK.INDEX #compindex ] ] > ].
+
+
+cl_x_rel := norm_rel 
+"""
+Having cl_x_rel under norm_rel makes the claim that all selected_rel (non-norm_rel) cannot be classified over. This might not be the case. We could use ALTKEY instead of KEY if we want to allow CLs to happen in selected rels.
+""".
+
+intensifier_x_rel := predsort.
+redup_x_rel := intensifier_x_rel.
+
+neg_x_rel := predsort.
+nm_rel := predsort.
+measure_x_rel := predsort.
+bridge_x_rel := predsort.
+
+;;for nouns being used as PP modifying verbs
+place_p_rel := predsort.
+time_p_rel := predsort.
+addressee_p_rel := predsort.
+
+fragment_head := head.
+
+;;; (DPF and FCB 2009-02) Allow saturated valences to include zero pronouns
+;;; maybe SPR is also olist?
+saturated := valence & 
+	     [SUBJ olist,
+	      COMPS olist,
+	      SPR null].
+super-saturated := saturated & 
+	     [SUBJ null,
+	      COMPS null,
+	      SPR null].
+
+
+
++vj :+ 
+   [ STATIVE luk,
+     PRED-KEY predsort ].
+
+char := avm & 
+  [ FCHAR string, 
+    WCHAR string, 
+    LENGTH length ].
+
+length := avm.
+one-or-two := length.
+more-than-one := length.
+one := one-or-two.
+two := one-or-two & more-than-one.
+more-than-two := more-than-one.
+
+
+
+;; WWJ 2015-04-07: EXISTV for 有; MODIFIABLE used 
+;; for A-elements in A-not-A structures
+;; ZZF & FB 2016-10-3: EMPTY for phrases created by rule with an empty head
+head :+
+ [ EMPTY bool,
+   CHAR char,
+   EXISTV bool, 
+   MODIFIABLE bool,
+   LOC luk,
+   MEASURE luk ].
+
+lex-item :+ 
+ [ STEM.FIRST #str,
+   SYNSEM.LOCAL.CAT.HEAD.CHAR.WCHAR #str ].
+
+marker-or-punct := head & 
+ [ MOD <> ].
+marker := marker-or-punct.
+punct := marker-or-punct.
+
+
+;============================================================================
+; Below we define PFORM (preposition form) as a feature, and then introduces
+; a mini hierarchy of prepositions that can be selected by verbs.
+; prepositions can say define it's PFORM like so:
+;     SYNSEM.LOCAL.CAT.HEAD.PFORM zai
+; which can be selected by verbs's argument structure like so:
+;     [ ARG-ST  < [], [], [ LOCAL.CAT [ HEAD [ PFORM zai ] ] ] > ].
+;============================================================================
++np :+ [ PFORM pform ].
+pform := avm.
+gei-or-xiang := pform.
+gei := gei-or-xiang.
+xiang := gei-or-xiang.
+zai := pform.
+you := pform.
+dui := pform.
+voc := pform.
+
+
++njd :+ 
+ [ HON luk,
+   GENERIC luk,
+   CLASSIFIED luk ].
+
+;; SSH 2014-10-10 nominalizer 的 'de'
+nm := noun.
+
+num :+ 
+ [ CARDINAL bool ].
+
+
+;; SSH 2015-04-16: The following are revised. 
+prep := adp.
+postp := adp.
+postp-assoc := postp.
+postp-assoc-n := postp-assoc & postp-nominalizable.
+postp-assoc-v := postp-assoc.
+postp-nominalizable := postp.
+postp-comp := postp-nominalizable.
+
+
+;; SSH 2014-09-02: Gender is necessary to distinguish he and she. 
+;; 她 追赶 了 他: She chased him.
+;; In addition, Animacy is also neceesary to disinguish s(he) and it.
+;; 她 追赶 了 它: She chasd it.
+png :+ 
+  [ PERNUM pernum,
+    GENDER gender,
+    ANIMACY animacy ].
+
+;;; Pernum
+
+pernum := *top*.
+sg := pernum.
+indet := pernum.
+pl := pernum.
+1st := pernum.
+2nd := pernum.
+3rd := pernum.
+1sg := 1st & sg.
+2sg := 2nd & sg.
+3sg := 3rd & sg.
+1indet := 1st & indet.
+2indet := 2nd & indet.
+3indet := 3rd & indet.
+1pl := 1st & pl.
+1pl_incl := 1pl.
+1pl_excl := 1pl.
+2pl := 2nd & pl.
+3pl := 3rd & pl.
+
+;;; SSH 2014-09-02
+;;; Gender 
+gender := *top*.
+masc := gender.
+fem := gender.
+
+;;; SSH 2014-09-02; 2015-04-08 revised 
+;;; Animacy
+animacy := *top*.
+animate := animacy.
+human := animate.
+non-human := animate.
+inanimate := animacy.
+
+;;; Form
+
+form := *top*.
+nonfinite := form.
+finite := form.
+
+
+
+;============================================================================
+; ASPECT
+;============================================================================
+;; SSH 2014-09-19: The type hierarchy for aspect should be researched
+;; more. We assume here that no-marking implies *imperfective*.
+;; 2016-2-15 ZZF changing experiential (guo) from "imperfective" to "perfective" ::fix me
+;============================================================================
+; ORIGINAL:
+;============================================================================
+;
+; aspect:
+;       > perf-or-exp:
+;                    >> perfective------------------------
+;                    >> experiential                     |
+;       > durative                                       |-- tent-and-perf
+;       > delimitative                                   |
+;       > tentative  -------------------------------------
+;       > imperfective
+;
+;
+;============================================================================
+; FACTS:
+; Some aspect particles (LE, GUO) are being dealt with through the
+; 'comp-marker' rule. Even though there is a 'marker-comp' rule, this is not
+; being used to deal with pre-verbal aspect. 'comp-marker' and 'marker-comp'
+; rules are also being used to deal with certain symbols like parenthesis,
+; quotes, etc.
+;
+; Pre-verbal aspect markers (e.g. 在 and 正在) are actually being handled by the
+; 'mod-head-int' rule.
+;
+; verbs (and adjectives) HEAD.LZG le+zhe+guo
+; in cmn.tdl there is the hierarchy for 'le+zhe+guo'
+;============================================================================
+
+; (regular) MEI need to be blocked by:
+    ; - Adjectives
+    ; - Stative verbs (for now we can assume those are verbs that take HEN+ ZAI + SHI); verbs that can't take MEI also can't take LE;
+    ; - Verbs that have been marked for aspect LE cannot take MEI (i.e. they are siblings in the hierarchy); they also can't take BU;
+    
+
+
+; - GUO (experiential) is incompatible with LE and other aspectcs;
+; - GUO (experiential) cannot take BU but can take MEI; This seems to show that GUO is "a subtype of aspect compatible with MEI under that is unspecified for positive or negative. LE, on the otherhand, is already marked for "positive" and that is why it directly competes with MEI.
+
+; MEI is strictly required by YOU (which cannot take BU)
+;<???> Can YOU take LE as aspect? (他有了三只猫) ???
+
+; Some in the literature call MEI imperfective, orther neg-perfective; ZHONG actually has MEI as imperfective commented out... :/ 
+
+
+
+;  MEI + LE = NO
+;  LE + GUO = NO
+;  MEI + GUO = YES
+
+;  perf-exp 
+;           > pos-exp = verb + GUO
+;           > neg-exp = MEI + verb + GUO
+; 	  *            BU + verb + GUO
+; 	  > pos-perf = verb + LE 
+; 	  > neg-perf = MEI + verb
+; 	  *            MEI + verb + LE
+;           *            BU + verb + LE
+
+
+;  non-perf-or-exp  -----  BU (once it takes BU it cannot take LE or GUO)
+
+;  perf-exp:
+;            ---- neg-perf  selected by MEI (blocks LE, but not GUO)
+; 	   ---- neg-perf-or-exp: MEI requires this
+; 	   ---- pos-perf-or-exp: (blocks MEI) allows LE or GUO 
+
+
+
+; perfective:   LE(positive)   MEI(negative)   experiential
+;                                                     - GUO
+; 						    - MEI + GUO
+
+; GUO:  experiential
+; MEI:  negative-PERF-OR-EXPERIENTIAL
+; LE:   positive perfective
+; BU:   negative-non-perfective
+
+; For adjetives (for now) I want 'no-aspect'
+
+;============================================================================
+
+perfective := aspect.
+
+tentative := aspect.
+
+imp-exp-or-dur := aspect
+"""
+This is the aspect value 没 restricts to.
+When it appears by itself, it is usually considered simply 'imperfective'. However, 没 is also used to negate 过, 着 and 在. This means that 'imperfective', 'experiential' and 'durative' need to inherit from a single parent. 
+When paired with one of the other aspect particles, they will find the adequate GLB.
+
+[FIXME] This would be a case where we would want to rewrite this using the vpm. 'imperfective-or-experiential-or-durative' could be set to 'imperfective' by default to avoid overgeneration. 
+""".
+
+imperfective := imp-exp-or-dur.
+
+experiential := imp-exp-or-dur.
+
+durative := imp-exp-or-dur.
+
+tent-and-perf := tentative & perfective
+"""
+FZZ 2017-01-10 for '看 了 一下'
+""".
+
+non-aspect := imperfective
+"""
+SSH 2014-09-04; blocking overgeneration.
+
+[FIXME] This is actually being used for both 不 and, A-NOT-A constructions. But it is not clear whether or not it should be inheriting from 'imperfective'.  
+""".
+
+
+
+
+
+;============================================================================
+
+
+
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; SSH 2015-05-24
+;; CTXT (Honorification)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+dialogue := icons.
+addressor := dialogue.
+addressee := dialogue.
+rank := icons.
+higher-or-equal := rank.
+lower-or-equal := rank.
+higher := higher-or-equal.
+lower := lower-or-equal.
+equal :=  higher-or-equal & lower-or-equal.
+
+ctxt :+ [ C-INDICES c-indices ].
+
+c-indices := avm & 
+  [ SPEAKER ref-ind,
+    HEARER ref-ind ].
+
+;;; Phrasal types
+
+head-only :+ 
+  [ SYNSEM.LOCAL.CAT [ NONSUBJ #ns,
+		       NONCOMP #nc ], 
+    HEAD-DTR.SYNSEM.LOCAL.CAT [ NONSUBJ #ns,
+				NONCOMP #nc ] ]. 
+
+;;ZZF 2016-11-29 removed "BOUND na-or--," from head-dtr, to allow adv suffix (bound) to take comp.
+basic-head-comp-phrase :+ 
+  [ SYNSEM.LOCAL.CAT [ MC #mc,
+                       NONCOMP #nc,
+		       VAL.SPEC #spec ],
+    HEAD-DTR.SYNSEM [ LOCAL.CAT [ MC #mc,
+                                  NONCOMP #nc,
+				  VAL.SPEC #spec ] ] ].
+
+
+
+
+
+; SSH 2014-08-25 Zhong specific head-adj-phrase This consraint was in
+; the previous version of matrix.tdl, but it was removed by Antske
+; Fokkens and Joshua Crowgey (2012-26-09).
+head-adj-phrase :+ 
+  [ SYNSEM.INTERJECTED #interjected,
+    HEAD-DTR.SYNSEM [ INTERJECTED #interjected,
+		      MODIFIED notmod-or-rmod ] ].
+
+head-adj-int-phrase :+ 
+"""
+Using OPT on non-head-dtr to prevent a special DeP from being taken as a normal modifier.
+"""
+  [ SYNSEM [ L-PERIPH #lperiph,
+	     R-PERIPH #rperiph ],
+    HEAD-DTR.SYNSEM.R-PERIPH na-or--,
+    NON-HEAD-DTR.SYNSEM [ L-PERIPH #lperiph,
+			  R-PERIPH #rperiph,
+                          PUNCTUATED na-or--,
+                          LOCAL.CAT.HEAD.MOD < [ OPT na-or-- ] > ] ].
+
+;; WWJ (2015-03-28): NHD's SPART and Phrase's NHD are identified... is this ok?
+head-adj-scop-phrase :+
+  [ SYNSEM.SPART #spart,
+    HEAD-DTR.SYNSEM.ASPECTED +-or--,
+    NON-HEAD-DTR.SYNSEM [ BOUND -, 
+                          SPART #spart ] ].
+
+head-comp-phrase := basic-head-1st-comp-phrase & head-initial &
+"""
+It is not clear why this was marked as [PUNCTUATED na-or--] and it was blocking parses like: 
+<ex> 电邮 地址 是 ： abc@google.com
+(The email address is abc@google.com)
+
+;; The head of head-comp-phrase can't be: ['comp']
+"""
+  [ SYNSEM phr-synsem,
+    HEAD-DTR.SYNSEM [ LOCAL.CAT.HEAD +nvjrpdmo,
+                      ; PUNCTUATED na-or--,
+                      POSTCOMP na-or-- ],
+    NON-HEAD-DTR.SYNSEM [ R-PERIPH na-or--,
+			  INTERJECTED na-or--,
+                          CH na-or-- ] ].
+
+;; WWJ (2015-03-28) - HEAD-DTR's spart value is passed up to this phrase
+head-comp-phrase :+
+  [ SYNSEM.SPART #spart,
+    HEAD-DTR.SYNSEM.SPART #spart ].
+;     HEAD-DTR.SYNSEM.SPART #spart,
+;     NON-HEAD-DTR.SYNSEM.BOUND - ].
+
+;; SSH/ZZF 2015-07-15
+head-comp-phrase :+ 
+  [ SYNSEM.LOCAL.CAT.NONCOMP #nc,
+    HEAD-DTR.SYNSEM.LOCAL.CAT.NONCOMP #nc ]. 
+;; to allow 0-1-dlist                      SYNSEM.NON-LOCAL.SLASH 0-dlist ].
+
+
+head-2nd-comp-phrase := basic-head-2nd-comp-phrase & head-initial &
+"""
+;; SSH 2015-04-16: adp -> prep
+
+"""
+  [ SYNSEM phr-synsem &
+       [ LOCAL.CAT.HEAD verb ],
+    HEAD-DTR.SYNSEM.POSTCOMP na-or--,
+    NON-HEAD-DTR.SYNSEM [ LOCAL.CAT.HEAD prep,
+                          R-PERIPH na-or--,
+			  INTERJECTED na-or-- ] ]. 
+
+;; SSH 2015-04-16: adp -> +np (ex. 我 [教室 里] 哭 了)
+comp-head-final-phrase := basic-head-1st-comp-phrase & head-final & 
+"""
+POSTCOMP + == I'm after my comps
+
+LMC: added a BOUND na-or-- constrain to the NON-HEAD-DTR to prevent it 
+from picking up bound morphemes like 们.
+"""
+  [ SYNSEM.LOCAL.CAT.HEAD +njrpdmo,
+    HEAD-DTR.SYNSEM.POSTCOMP +,
+    NON-HEAD-DTR.SYNSEM [ R-PERIPH na-or--,
+                          CH na-or-+,
+			  BOUND na-or--,
+			  LOCAL.CAT.HEAD +nvjrp ] ].
+
+
+non-local := non-local-min &
+"""
+;;; Matrix redifinition
+;;; redefine QUE to allow >1 wh-words in a sentence
+;;; taking out QUE from the basic-one/two/three-arg 
+;;; QUE value is instead amalgated by unary/binary rules
+"""
+  [ SLASH 0-1-dlist,
+    QUE diff-list,
+    REL 0-1-dlist ].
+
+basic-one-arg := lex-item &
+"""
+;;; Matrix redifinition
+;;; redefine QUE to allow >1 wh-words in a sentence
+;;; taking out QUE from the basic-one/two/three-arg 
+;;; QUE value is instead amalgated by unary/binary rules
+"""
+  [ ARG-ST < [ NON-LOCAL [ SLASH #slash,
+			   REL #rel ] ] >,
+    SYNSEM.NON-LOCAL [ SLASH #slash,
+		       REL #rel ] ].
+
+basic-two-arg := lex-item &
+"""
+;;; Matrix redifinition
+;;; redefine QUE to allow >1 wh-words in a sentence
+;;; taking out QUE from the basic-one/two/three-arg 
+;;; QUE value is instead amalgated by unary/binary rules
+"""
+  [ ARG-ST < [ NON-LOCAL [ SLASH [ LIST #smiddle,
+				   LAST #slast ],
+			   REL [ LIST #rmiddle,
+				 LAST #rlast ] ] ],
+	     [ NON-LOCAL [ SLASH [ LIST #sfirst,
+				   LAST #smiddle ],
+			   REL [ LIST #rfirst,
+				 LAST #rmiddle ] ] ] >,
+    SYNSEM.NON-LOCAL [ SLASH [ LIST #sfirst,
+			       LAST #slast ],
+		       REL [ LIST #rfirst,
+			     LAST #rlast ] ] ].
+
+basic-three-arg := lex-item &
+"""
+;;; Matrix redifinition
+;;; redefine QUE to allow >1 wh-words in a sentence
+;;; taking out QUE from the basic-one/two/three-arg 
+;;; QUE value is instead amalgated by unary/binary rules
+"""
+  [ ARG-ST < [ NON-LOCAL [ SLASH [ LIST #smiddle2,
+				   LAST #slast ],
+			   REL [ LIST #rmiddle2,
+				 LAST #rlast ] ] ],
+	     [ NON-LOCAL [ SLASH [ LIST #sfirst,
+				   LAST #smiddle1 ],
+			   REL [ LIST #rfirst,
+				 LAST #rmiddle1 ] ] ],
+	     [ NON-LOCAL [ SLASH [ LIST #smiddle1,
+				   LAST #smiddle2 ],
+			   REL [ LIST #rmiddle1,
+				 LAST #rmiddle2 ] ] ] >,
+    SYNSEM.NON-LOCAL [ SLASH [ LIST #sfirst,
+			       LAST #slast ],
+		       REL [ LIST #rfirst,
+			     LAST #rlast ] ] ].
+
+unary-phrase-super := basic-unary-phrase &
+  [ INFLECTED infl-satisfied,
+    ARGS < [ INFLECTED infl-satisfied ] > ].
+
+unary-phrase := unary-phrase-super &
+"""
+This was redefined from Matrix. The info that existed in 'matrix.tdl' is now in 'unary-phrase-super'.
+"""
+  [ SYNSEM.NON-LOCAL.QUE #que,
+    ARGS < sign & [ SYNSEM.NON-LOCAL.QUE #que ] > ].
+
+unary-phrase :+
+"""
+"""
+  [ SYNSEM.LOCAL.CONT.HOOK [ SPEAKER-KEY #skey,
+			     HEARER-KEY #hkey ],
+    ARGS < [ SYNSEM.LOCAL.CONT.HOOK [ SPEAKER-KEY #skey,
+				      HEARER-KEY #hkey ] ] > ]. 
+
+
+basic-binary-phrase :+
+  [ SYNSEM [ PUNCTUATED #punc,
+             NON-LOCAL.QUE [ LIST #first,
+			   LAST #last ] ],
+    ARGS < sign & [ SYNSEM.NON-LOCAL.QUE [ LIST #first,
+				           LAST #middle ] ],
+	   sign & [ SYNSEM [ PUNCTUATED #punc,
+                             NON-LOCAL.QUE [ LIST #middle,
+				             LAST #last ] ] ] > ].
+
+head-nexus-phrase := head-nexus-rel-phrase
+"""
+This is a redefinition from the Matrix.
+;;removed head-nexus-que-phrase as QUE is now collected differently.
+""".
+
+; basic-head-subj-phrase := head-valence-phrase & head-compositional & 
+; 			  basic-binary-headed-phrase &
+; """
+; ;;; Matrix redifinition
+; ;;; remove "QUE 0-dlist" from NON-HEAD-DTR
+; ;;; as subj can be or contain wh-word
+; ;;; e.g. "谁" "哪 个 人" "谁 的 书" etc.
+; """
+;   [ SYNSEM phr-synsem & 
+; 		   [ LOCAL.CAT [ POSTHEAD +,
+; 				 HC-LIGHT -,
+; 				 VAL [ SUBJ < >,
+; 				       COMPS #comps,
+; 				       SPR #spr ] ] ],
+; 	HEAD-DTR.SYNSEM.LOCAL.CAT.VAL [ SUBJ < #synsem >,
+; 					COMPS #comps,	
+; 					SPR #spr ],
+; 	NON-HEAD-DTR.SYNSEM #synsem & canonical-synsem &
+; 		   [ LOCAL [ CAT [ VAL [ SUBJ olist,
+; 					 COMPS olist,
+; 					 SPR olist ] ] ],
+; 		     NON-LOCAL [ SLASH 0-dlist & [ LIST < > ],
+; 			         REL 0-dlist ] ],
+;     C-CONT [ RELS <! !>, HCONS <! !>, ICONS <! !> ] ].
+
+
+
+basic-head-subj-phrase := head-valence-phrase & binary-headed-phrase &
+                          head-compositional &
+"""
+;; MATRIX REDEFINITION
+;; Note: We removed the [QUE 0-dlist] constraint from the NON-HEAD-DTR
+;; since Mandarin has in-situ WH-phrases.
+;;
+;;; e.g. subj can be or contain wh-word
+;;; e.g. '谁' '哪 个 人' '谁 的 书' etc.
+
+I preserved the order of these two definitions, but they are not the same! 
+So this second one is the one that has been used for a while!
+It seems we lost HC-LIGHT  but added BOUND na-or--   to the HEAD-DTR
+I commented out the first definition (which was being redefined by ACE anyway)
+[FIXME][FCB]
+FCB: ADD/REMOVE HC-LIGHT and do regression test 
+"""
+  [ SYNSEM phr-synsem & 
+           [ LOCAL.CAT [ POSTHEAD +,
+                         VAL [ SUBJ < >,
+                               COMPS #comps,
+                               SPR #spr ] ] ],
+    HEAD-DTR.SYNSEM [ BOUND na-or--,
+		      LOCAL.CAT.VAL [ SUBJ < #synsem >,
+				      COMPS #comps,    
+				      SPR #spr ] ],
+    NON-HEAD-DTR.SYNSEM #synsem & canonical-synsem &
+           [ LOCAL.CAT.VAL [ SUBJ olist,
+                             COMPS olist,
+                             SPR olist ],
+             NON-LOCAL [ SLASH 0-dlist & [ LIST < > ],
+                         REL 0-dlist ] ],
+    C-CONT [ RELS <! !>, HCONS <! !>, ICONS <! !> ] ].
+
+
+
+
+;; For now, exclude time nouns as subjects
+;; 
+;; SSH 2014-09-26: Only phrases can be the subjects (phr-synsem)
+;; SSH 2015-07-13: non-rel subj-head and rel subj-head (nonmc)
+;;                 Added [NON-LOCAL.SLASH 0-dlist]
+;; ZZF FB 2016-2-24: changed subj's SPR to be olist
+;; ZZF FB 2016-11-4: removed "SPR < >," from HEAD-DTR, to allow ADJ without degree adverbs, like "苹果 甜". The constraint might be too strict.
+;; contraint on HEAD to avoid taking fragments as subject
+subj-head-phrase := decl-head-subj-phrase & head-final &
+"""
+There seemed to be a notion that time nouns could not serve as SUBJs.
+This restriction was actually spread across both basic-time-noun-lex (by 
+stating they were [NONSUBJ +], but also here, by stating that the 
+NON-HEAD-DTR must be of SORT nontime-s. This seems to be overly restrictive
+as it doesn't account for sentences like:
+<ex> 一月 是 我 最 喜欢 的 月份 。
+Or 
+<ex> 昨天 很 热 。
+This restriction was removed for the time being.
+<ex> 今天 过 了 以后 我 可以 吃 饭 。
+"""
+  [ SYNSEM.LOCAL.CAT [ MC #mc ],
+    SYNSEM.SPART #spart,
+    HEAD-DTR.SYNSEM [ LOCAL.CAT [ MC #mc, 
+				  VAL [ 
+				      COMPS < > ],
+				  POSTHEAD + ],
+                      SPART #spart,
+		      NON-LOCAL.SLASH 0-1-dlist ],
+    NON-HEAD-DTR.SYNSEM  [ R-PERIPH na-or--,
+			   INTERJECTED na-or--,
+			   LOCAL [ CAT [ MC +,
+                                         HEAD +nvjp,
+					 NONSUBJ -,
+					 VAL.SPR olist ] ],
+; 					 VAL.SPR olist ],
+; 				   CONT.HOOK.INDEX.SORT nontime-s ],
+			   NON-LOCAL [ SLASH 0-dlist & [ LIST < > ],
+				       REL 0-dlist ] ] ].
+
+         
+;; comp-head-phrase requires things that are [ HEAD comp ].
+;; SSH 2015-07-13: relative-clauses
+comp-head-phrase := basic-head-1st-comp-phrase & head-final &
+  [ SYNSEM [ LOCAL.CAT.HEAD comp,
+	     NON-LOCAL.SLASH #slash ],
+    NON-HEAD-DTR [ STYLE strict,
+		   SYNSEM [ R-PERIPH na-or--,
+			    INTERJECTED na-or--,
+			    BOUND na-or--,
+			    NON-LOCAL.SLASH #slash ] ] ].
+
+
+;; MATRIX REDEFINITION
+;; SSH 2015-05-07: x_rel and q_rel are defined as types.
+n-coord-phrase :+
+[ SYNSEM.LOCAL.CONT.HOOk.INDEX.SORT #sort,
+  LCOORD-DTR.SYNSEM.LOCAL.CONT.HOOk.INDEX.SORT #sort ].
+
+np-coord-phrase :+
+[ SYNSEM.LOCAL.CONT.HOOk.INDEX.SORT #sort,
+  LCOORD-DTR.SYNSEM.LOCAL.CONT.HOOk.INDEX.SORT #sort ].
+
+basic-np-top-coord-rule := np-coord-phrase & c-cont-1 &
+"""
+This is a redefinition from Matrix.
+original: PRED "exist_q_rel"
+now: PRED exist_q_rel 
+"""
+  [ SYNSEM.LOCAL.CAT.VAL.SPR < >,
+    C-CONT [ HOOK [ LTOP #ltop,
+                    INDEX #ind ],
+             RELS <! [ PRED exist_q_rel, ARG0 #ind, RSTR #ltop ] !>,
+	     HCONS <! !> ]].
+
+s-coord-phrase := event-coord-phrase &
+"""
+;; MATRIX REDEFINITION
+;;ZZF 2016-11-29 included adj and removed "RCOORD-DTR.SYNSEM.LOCAL.CAT.MC #mc", as right item usually has a conj leading the construction, which is MC -. And ROOT requires MC +.
+"""
+  [ SYNSEM.LOCAL.CAT [ MC #mc,
+                       HEAD verb,
+                       VAL.SUBJ < > ],
+    LCOORD-DTR.SYNSEM.LOCAL.CAT [ HEAD +vj,
+                                  MC #mc ],
+    RCOORD-DTR.SYNSEM.LOCAL.CAT.HEAD +vj ].
+
+
+mid-coord-rule := topormid-coord-phrase &
+"""
+This was redefined from Matrix.
+;; ZZF 20161122: changing COORD to be "-" for mid level, which can then combine with the next (to the right) "+" phrase to form coordination
+;; removed implicit-coord-rel as the conj introduces coord-rel
+;; bottom level: conj (including implicit coordinator "，" and "、") + xp --> COORD + at mother node
+;; mid level: (NP + (CONJ + NP)) --> COORD- + COORD+ --> COORD - at mother node
+"""
+  [ SYNSEM.LOCAL [ COORD - ]].
+;                   COORD-REL #corel ],
+;    RCOORD-DTR.SYNSEM.LOCAL.COORD-REL #corel ]. 
+
+;;; Coordination Strategy 1
+
+n1-top-coord-rule := basic-np-top-coord-rule & monopoly-top-coord-rule &
+  [ SYNSEM.LOCAL.COORD-STRAT "1" ].
+
+n1-mid-coord-rule := basic-np-mid-coord-rule & monopoly-mid-coord-rule &
+  [ SYNSEM.LOCAL.COORD-STRAT "1" ].
+
+; #|
+; n1-bottom-coord-rule := infl-bottom-coord-rule &
+;   [ SYNSEM.LOCAL.COORD-STRAT "1",
+;     SYNSEM.LOCAL.COORD-REL.PRED "_and_coord_rel",
+;     DTR.SYNSEM.LOCAL.CAT.HEAD noun ].
+; |#
+
+bottom-coord-rule := conj-first-bottom-coord-rule &
+"""
+ZZF 2016-11-30 added [PUNCTUATED na-or--] to nonconj-dtr so that punctuations are attached later; added SPR < > to nonconj-dtr to close it off and allow same VAL for the two coordinated elements.
+
+This rule joins a conjunction with a head 'non-conjunction' phrase (e.g. a comma with a NP).
+"""
+  [ SYNSEM [ LOCAL [ CAT [ HEAD #head,
+			   MC - ],
+		     COORD + ],
+             NON-LOCAL #nonloc ],
+    CONJ-DTR.SYNSEM.LOCAL.CAT.HEAD conj,
+    NONCONJ-DTR.SYNSEM [ LOCAL.CAT [ HEAD +nvjrpcdm & #head ,
+                                     VAL.SPR < > ],
+                         NON-LOCAL #nonloc,
+                         PUNCTUATED na-or-- ] ].
+; #|
+; bottom-coord-rule := conj-first-bottom-coord-rule &
+;   [ SYNSEM [ LOCAL [ CAT [ HEAD #head,
+;                            MC - ],
+;                      COORD + ],
+;              NON-LOCAL #nonloc ],
+;     CONJ-DTR.SYNSEM [ LOCAL.CAT.HEAD conj,
+;                       LKEYS.KEYREL.R-INDEX #ind ],
+;     NONCONJ-DTR.SYNSEM [ LOCAL [ CAT [ HEAD +nvjrpcdm & #head ,
+;                                        VAL.SPR < > ],
+;                                  CONT.HOOK.INDEX #ind ],
+;                          NON-LOCAL #nonloc,
+;                          PUNCTUATED na-or-- ] ].
+; |#
+;;; Coordination Strategy 2
+
+vp1-top-coord-rule := basic-vp-top-coord-rule & apoly-top-coord-rule &
+  [ SYNSEM.LOCAL.COORD-STRAT "1" ].
+
+; #|
+; vp1-bottom-coord-rule := conj-first-bottom-coord-rule & 
+;              vp-bottom-coord-phrase &
+;   [ SYNSEM.LOCAL.COORD-STRAT "1" ].
+; |#
+
+;;; Coordination Strategy 3
+
+n3-top-coord-rule := basic-n-top-coord-rule & apoly-top-coord-rule &
+  [ SYNSEM.LOCAL.COORD-STRAT "3" ].
+
+n3-bottom-coord-rule := unary-bottom-coord-rule & n-bottom-coord-phrase &
+  [ SYNSEM.LOCAL [ COORD-STRAT "3",
+                   COORD-REL.PRED "_and_coord_rel" ] ].
+
+;;; Coordination Strategy 3
+
+np3-top-coord-rule := basic-np-top-coord-rule & apoly-top-coord-rule &
+  [ SYNSEM.LOCAL.COORD-STRAT "3" ].
+
+np3-bottom-coord-rule := unary-bottom-coord-rule & np-bottom-coord-phrase &
+  [ SYNSEM.LOCAL [ COORD-STRAT "3",
+                   COORD-REL.PRED "_and_coord_rel" ] ].
+
+;;; Coordination Strategy 3
+
+vp3-top-coord-rule := basic-vp-top-coord-rule & apoly-top-coord-rule &
+  [ SYNSEM.LOCAL.COORD-STRAT "3" ].
+
+vp3-bottom-coord-rule := unary-bottom-coord-rule & vp-bottom-coord-phrase &
+  [ SYNSEM.LOCAL [ COORD-STRAT "3",
+                   COORD-REL.PRED "_and_coord_rel" ] ].
+
+;;; Coordination Strategy 3
+
+s1-top-coord-rule := basic-s-top-coord-rule & apoly-top-coord-rule &
+  [ SYNSEM.LOCAL.COORD-STRAT "1" ].
+
+; #|
+; s3-bottom-coord-rule := unary-bottom-coord-rule & s-bottom-coord-phrase &
+;   [ SYNSEM.LOCAL [ COORD-STRAT "1",
+;                    COORD-REL.PRED "_and_coord_rel" ] ].
+; |#
+
+;;; Coordination Strategy 4
+
+n4-top-coord-rule := basic-n-top-coord-rule & monopoly-top-coord-rule &
+  [ SYNSEM.LOCAL.COORD-STRAT "4" ].
+
+n4-mid-coord-rule := basic-n-mid-coord-rule & monopoly-mid-coord-rule &
+  [ SYNSEM.LOCAL.COORD-STRAT "4" ].
+
+n4-bottom-coord-rule := infl-bottom-coord-rule &
+  [ SYNSEM.LOCAL.COORD-STRAT "4",
+    SYNSEM.LOCAL.COORD-REL.PRED "_and_coord_rel",
+    DTR.SYNSEM.LOCAL.CAT.HEAD noun ].
+
+;;; Coordination Strategy 5
+
+n5-top-coord-rule := basic-n-top-coord-rule & monopoly-top-coord-rule &
+  [ SYNSEM.LOCAL.COORD-STRAT "5" ].
+
+n5-mid-coord-rule := basic-n-mid-coord-rule & monopoly-mid-coord-rule &
+  [ SYNSEM.LOCAL.COORD-STRAT "5" ].
+
+n5-bottom-coord-rule := conj-first-bottom-coord-rule & n-bottom-coord-phrase &
+  [ SYNSEM.LOCAL.COORD-STRAT "5" ].
+
+;;; Coordination Strategy 5
+
+np5-top-coord-rule := basic-np-top-coord-rule & monopoly-top-coord-rule &
+  [ SYNSEM.LOCAL.COORD-STRAT "5" ].
+
+np5-mid-coord-rule := basic-np-mid-coord-rule & monopoly-mid-coord-rule &
+  [ SYNSEM.LOCAL.COORD-STRAT "5" ].
+
+np5-bottom-coord-rule := conj-first-bottom-coord-rule & 
+             np-bottom-coord-phrase &
+  [ SYNSEM.LOCAL.COORD-STRAT "5" ].
+
+;;; Coordination Strategy 5
+
+vp5-top-coord-rule := basic-vp-top-coord-rule & monopoly-top-coord-rule &
+  [ SYNSEM.LOCAL.COORD-STRAT "5" ].
+
+vp5-mid-coord-rule := basic-vp-mid-coord-rule & monopoly-mid-coord-rule &
+  [ SYNSEM.LOCAL.COORD-STRAT "5" ].
+
+vp5-bottom-coord-rule := conj-first-bottom-coord-rule & 
+             vp-bottom-coord-phrase &
+  [ SYNSEM.LOCAL.COORD-STRAT "5" ].
+
+;;; Coordination Strategy 5
+
+s5-top-coord-rule := basic-s-top-coord-rule & monopoly-top-coord-rule &
+  [ SYNSEM.LOCAL.COORD-STRAT "5" ].
+
+s5-mid-coord-rule := basic-s-mid-coord-rule & monopoly-mid-coord-rule &
+  [ SYNSEM.LOCAL.COORD-STRAT "5" ].
+
+s5-bottom-coord-rule := conj-first-bottom-coord-rule & s-bottom-coord-phrase &
+  [ SYNSEM.LOCAL.COORD-STRAT "5" ].
+
+;;; Coordination Strategy 6
+
+s6-top-coord-rule := basic-s-top-coord-rule & monopoly-top-coord-rule &
+  [ SYNSEM.LOCAL.COORD-STRAT "6" ].
+
+s6-mid-coord-rule := basic-s-mid-coord-rule & monopoly-mid-coord-rule &
+  [ SYNSEM.LOCAL.COORD-STRAT "6" ].
+
+s6-bottom-coord-rule := conj-first-bottom-coord-rule & s-bottom-coord-phrase &
+  [ SYNSEM.LOCAL.COORD-STRAT "6" ].
+
+;;; Coordination Strategy 7
+
+s7-top-coord-rule := basic-s-top-coord-rule & monopoly-top-coord-rule &
+  [ SYNSEM.LOCAL.COORD-STRAT "7" ].
+
+s7-mid-coord-rule := basic-s-mid-coord-rule & monopoly-mid-coord-rule &
+  [ SYNSEM.LOCAL.COORD-STRAT "7" ].
+
+s7-bottom-coord-rule := conj-first-bottom-coord-rule & s-bottom-coord-phrase &
+  [ SYNSEM.LOCAL.COORD-STRAT "7" ].
+
+;; We treat question particles as complementizers.
+;; Here is the lexical type for complementizers.
+
+adj-head-phrase :+ 
+  [ SYNSEM [ LOCAL.CAT.MC #mc,
+             BARE #bare],	
+    HEAD-DTR.SYNSEM [ L-PERIPH na-or--,
+                      LOCAL.CAT.MC #mc,
+                      BARE #bare ],
+    NON-HEAD-DTR.SYNSEM.LOCAL.CAT.HEAD.MOD < [ BARE #bare ] > ].
+
+;; SSH 2015-03-17: *张三 哦 哭 了 。
+scopal-mod-phrase :+
+"""
+These were not properly linked (they had a typo); Should run a sanity check; 
+"""
+  [ SYNSEM.INTERJECTED #interjected,
+    NON-HEAD-DTR.SYNSEM.INTERJECTED #interjected ].
+
+;; SSH 2014-12-19: BOUND for blocking [狗 轻轻 [地 [叫 了]].
+;; ZZF 2016-2-22: "LIGHT -" to mother to stop rslt rules (which requires "LIGHT +"
+;; 2016-11-7: "SPEC < >" to block degree specifier (adverb hen) being treated as modifier.
+;; remove PUNCTUATED na-or-- to allow comma between modifier and head
+adj-head-int-mc := adj-head-int-phrase &
+"""
+This is the super-type for intersective adj-head phrases.
+This is currently being used for many things, most importantly, it mixes normal modification with classifiers. 
+
+This is being split into classifiers/non-classifier below, so we can pass the feature CLASSIF.
+"""
+  [ SYNSEM [ LOCAL.CAT [ NONSUBJ #ns,
+		       NONCOMP #nc ],
+             LIGHT - ],
+    HEAD-DTR.SYNSEM [ SPART no-spart,
+		      LOCAL.CAT [ HEAD.MEASURE #meas,
+				  NONSUBJ #ns,
+				  NONCOMP #nc ],
+                      BOUND na-or--,
+                      BARE - ],
+    NON-HEAD-DTR.SYNSEM [ BOUND na-or--,
+			  LOCAL.CAT [ HEAD.MEASURE #meas,
+                                      VAL.SPEC < >,
+				      NONSUBJ #ns,
+				      NONCOMP #nc ] ] ].
+
+
+
+adj-head-int-noncls := adj-head-int-mc &
+"""
+For non classifier phrases, [CLASSIF #classif] is passed from the head daughter.
+"""
+  [ SYNSEM [ CLASSIF #classif ],
+    HEAD-DTR.SYNSEM [ CLASSIF #classif ] ].
+
+
+adj-head-int-cls := adj-head-int-mc &
+"""
+[CLASSIF +] is always true if this rule activates. This is done so we can create 'classifier/numeral predicates' which only seem viable if a NP is classifier (but without determiners). 
+"""
+  [ SYNSEM [ CLASSIF + ],
+    NON-HEAD-DTR.SYNSEM.LOCAL.CAT.HEAD classifier & [EMPTY -],
+    HEAD-DTR.SYNSEM.LOCAL.CAT.HEAD classifier & [CLASSIFIED -]].
+
+
+
+
+
+;; 2016-2-21 ZZF: added phr-synsem to mother. 
+
+adj-head-scop-phrase :+ 
+  [ SYNSEM phr-synsem & 
+           [ L-PERIPH #lperiph,
+	     R-PERIPH #rperiph ],
+    HEAD-DTR.SYNSEM [ BOUND na-or--,
+                      PUNCTUATED na-or-- ],
+    NON-HEAD-DTR.SYNSEM [ L-PERIPH #lperiph,
+			  R-PERIPH #rperiph ] ].
+
+alts :+ 
+  [ LE-PFV bool ].
+
+
+; SSH 2014-08-26: For Topic-Comment Constructions 
+; (1) This kind of types should reflect on the order of constituents
+; in their names. Thus, I changed the name: head-filler-phrase to
+; filler-head-phrase.  (2) I do not understand the purpose and
+; function of C-CONs-coord-phraseT. Temporily, I remove it.
+
+; #|
+; head-filler-phrase := basic-head-filler-phrase & head-final & 
+;   [ SYNSEM.LOCAL.CAT [ VAL #val,
+;                MC #mc ],
+;     HEAD-DTR.SYNSEM.LOCAL [ CAT [ HEAD verb,
+;                   VAL #val & [ SUBJ < >,
+;                            COMPS < >,
+;                            SPR < >,
+;                            SPEC < > ],
+;                   MC #mc ],
+;                 CONT.HOOK #hook ],
+;     NON-HEAD-DTR.SYNSEM.NON-LOCAL.QUE 0-dlist,
+;     C-CONs-coord-phraseT.HOOK #hook ].
+; |#
+
+;; SSH 2015-07-13 : [MC +]
+filler-head-phrase := basic-head-filler-phrase & head-final & 
+		      topic-comment &
+  [ SYNSEM [ L-PERIPH +,
+	     LOCAL.CAT [ VAL #val,
+			 MC + ] ],
+    HEAD-DTR.SYNSEM [ L-PERIPH -,
+		      BOUND na-or--,
+		      LOCAL [ CAT [ HEAD verb,
+				    VAL #val & [ SUBJ < >,
+						 COMPS < >,
+						 SPR < >,
+						 SPEC < > ] ],
+			      CONT.HOOK #hook & [ INDEX #clause,
+						  CLAUSE-KEY #clause ] ] ],
+    NON-HEAD-DTR.SYNSEM [ INTERJECTED na-or--,
+			  PUNCTUATED na-or--,
+			  LOCAL [ CAT.HEAD noun,
+				  CONT.HOOK.INDEX #index ],
+			  NON-LOCAL.QUE 0-dlist ],
+    C-CONT [ HOOK #hook,
+	     RELS <! !>, HCONS <! !>, 
+	     ICONS <! topic &
+		    [ IARG1 #clause,
+                      IARG2 #index ] !> ] ].
+
+extracted-comp-phrase := basic-extracted-comp-phrase & 
+"""
+;; SSH 2014-09-02: added [MODIFIED] for blocking overgeneration
+;; SSH 2014-09-02: added [MC +] for blocking overgeneration 
+;; FZZ 2017-01-12: removed [VAL.COMPS < >] from mother to allow verbs taking >1 comps
+"""
+  [ SYNSEM [ MODIFIED #modified,
+             LOCAL.CAT.MC + ],
+    HEAD-DTR.SYNSEM [ MODIFIED #modified,
+		      BOUND na-or--,
+		      LOCAL [ CAT.HEAD verb,
+			      CONT.HOOK #hook ] ],
+    C-CONT [ HOOK #hook, RELS <! !>, HCONS <! !>, ICONS <! !> ] ].
+
+;; DPF 2011-06-03 - Given current analysis of relative clauses as containing
+;; exactly one extracted element (which is thus relativized), we need subject
+;; extr at least for e.g. MRS:53
+;; DPF 2011-06-03 - HACK: stamped SPEC < [] > on mother, to avoid immediate
+;; filler-head-rule application for embedded clause in "I think dog chase cat".
+;; This `works' because the filler-head rule already demands that the hd-dtr
+;; have empty SPEC value; note that when an extracted-subj clause is picked
+;; up as a complement, the SPEC value is ignored higher up, since the verb
+;; selecting the S/NP does not pass up that SPEC value, of course.
+;;
+
+;;ZZF FB LMC 2016-4-20 NON-LOCAL.SLASH 0-dlist to avoid applying this after extracted-comp-phrase, but this stops extracted-subj-phrase being applied. So taking out now. Need further discussion with Emily.
+extracted-subj-phrase := basic-extracted-subj-phrase & 
+  [ SYNSEM [ MODIFIED #modified,
+	     LOCAL.CAT [ MC +,
+			 VAL.SPEC < [] > ] ], 
+    HEAD-DTR.SYNSEM [ MODIFIED #modified,
+		      BOUND na-or--,
+		      LOCAL [ CAT [ HEAD +vj,
+                                    VAL [ SUBJ < [ LOCAL.CAT.NONSUBJ - ] >,
+                                          COMPS < > ] ],
+			      CONT.HOOK #hook ] ],
+    C-CONT [ HOOK #hook, RELS <! !>, HCONS <! !>, ICONS <! !> ] ].
+
+coord-phrase :+ 
+  [ SYNSEM.NON-LOCAL.SLASH 0-dlist,
+    LCOORD-DTR.SYNSEM.NON-LOCAL.SLASH 0-dlist,
+    RCOORD-DTR.SYNSEM.NON-LOCAL.SLASH 0-dlist ].
+
+
+basic-determiner-lex := norm-hook-lex-item & basic-icons-lex-item &
+"""
+;; MATRIX REDEFINITION
+;; Note: Modified to allow multiple rels 
+"""
+  [ SYNSEM [ LOCAL [ CAT [ HEAD det,
+			   VAL.SPEC.FIRST.LOCAL.CONT.HOOK [ INDEX #ind,
+							    LTOP #larg ] ],
+		     CONT.HCONS <! qeq &
+				 [ HARG #harg,
+				   LARG #larg ] !> ],
+	     LKEYS.KEYREL quant-relation &
+		   [ ARG0 #ind,
+		     RSTR #harg ] ] ].
+
+infostr-marking-determiner-lex := basic-determiner-lex
+"""
+;; SSH 2014-08-26: MATRIX REDEFINITION
+No explanation was given.
+""".
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+clause := phrasal
+"""
+;; MATRIX REDEFINITION
+;; Note: for the following, removed QUE 0-dlist  
+;; -- question words can function as direct objects
+""".
+
+basic-non-rel-clause := clause & head-compositional & 
+"""
+;; MATRIX REDEFINITION
+;; Note: Removed [QUE 0-dlist] from HEAD-DTR, to allow in-situ WH
+"""
+  [ SYNSEM.NON-LOCAL.REL 0-dlist,
+    HEAD-DTR.SYNSEM [ LOCAL.CONT.HOOK [ INDEX #index,
+                                        ICONS-KEY.IARG1 #index,
+                                        CLAUSE-KEY #index ],
+                      NON-LOCAL.REL 0-dlist ],
+    C-CONT [ RELS <! !>,
+             HCONS <! !> ] ].
+
+
+;; MATRIX REDEFINITION
+;; Note: We removed the [QUE 0-dlist & [ LIST null ]] constraint from the NON-HEAD-DTR
+;; since Mandarin has in-situ WH-phrases with question word at scopal modifier position.
+;;
+basic-head-mod-phrase-simple := head-mod-phrase & binary-headed-phrase &
+"""
+
+Added [NONSUBJ] feature to the copying.
+Added [INTERJECTED] feature to the copying.
+"""
+  [ SYNSEM [ INTERJECTED #interjected,
+	     LOCAL.CAT.MKG #mkg,
+	     NON-LOCAL [ SLASH [ LIST #first,
+				 LAST #last ],
+			 REL 0-dlist ] ],
+    HEAD-DTR.SYNSEM 
+	   [ LOCAL [ CAT [ HEAD #head,
+			   NONSUBJ #nonsubj,
+			   VAL #val,
+			   POSTHEAD #ph,
+			   MC #hmc,
+			   HC-LIGHT - ],
+		     CONT.HOOK #hdhook & [ ICONS-KEY.IARG1 #clause,
+					   CLAUSE-KEY #clause ],  
+		     AGR #agr ],
+	     NON-LOCAL #nonloc &
+		   [ SLASH [ LIST #middle,
+			     LAST #last ] ],
+	     LIGHT #light,
+	     MODIFIED #modif ],
+    NON-HEAD-DTR.SYNSEM 
+	   [ INTERJECTED #interjected,
+	     LOCAL [ CAT [ HEAD [ MOD < [ LOCAL local & 
+						[ CAT [ HEAD #head,
+							NONSUBJ #nonsubj,
+							VAL #val,
+							POSTHEAD #ph,
+							MC #hmc ],
+						  AGR #agr,
+						  CONT.HOOK #hdhook ],
+					  NON-LOCAL #nonloc,
+					  LIGHT #light,
+					  MODIFIED #modif ] > ],
+			   VAL [ COMPS olist, 
+				 SPR olist ], 
+			   MKG #mkg ],
+		     CONT.HOOK [ ICONS-KEY.IARG1 #clause,
+				 CLAUSE-KEY #clause ] ],
+	     NON-LOCAL.SLASH [ LIST #first,
+			       LAST #middle ] ],
+    C-CONT [ RELS <! !>, ICONS <! !> ] ].
+
+
+
+basic-head-mod-phrase-simple :+
+"""
+;;2016-2-19 ZZF FB SSH copy SPEC from HEAD-DTR to mother.
+;;ZZF 20161114 removed 'NON-HEAD-DTR.SYNSEM.PUNCTUATED na-or--', put it on head-adj-int-phrase and adj-head-int-mc-phrase. To allow scopal modifier to have comma.
+
+Not sure why this was appended instead of merged into the original type. [FIXME]
+"""
+  [ SYNSEM.LOCAL [ CAT [ MC #mc,
+                         VAL.SPEC #spec ],
+		   CONT.HOOK.INDEX #ind ],
+    HEAD-DTR.SYNSEM.LOCAL [ CONT.HOOK.INDEX #ind,
+                            CAT.VAL.SPEC #spec ],
+    NON-HEAD-DTR.SYNSEM.LOCAL.CAT.MC #mc ].
+
+
+
+;; Nouns which cannot take specifiers mark their SPR requirement
+;; as OPT +.  Making the non-head daughter OPT - in this rule
+;; keeps such nouns out.
+;; 
+;; Rules for building NPs.  Note that the Matrix uses SPR for
+;; the specifier of nouns and SUBJ for the subject (specifier) of verbs.
+
+;; MATRIX REDEFINITION
+;; Note: We removed the identification of HOOK on mother and NON-HEAD-DTR,
+;; since we need two subtypes of head-specifier phrsae, one whose HOOK
+;; is identified with the NON-HEAD-DTR, and one where the HOOK is the same
+;; as that of the HD-DTR.
+;;
+
+
+
+;; SSH 2014-08-22 zhong specific basic-head-spr-phrase 
+;; ZZF 2015-9-30 taking out "STYLE robust," as this is preventing sentences from parsing
+basic-head-spr-phrase := head-valence-phrase & phrasal &
+			  binary-headed-phrase &
+"""
+By forcing the non-head daughter's SPEC's COMP to be empty, we can require all 
+determiners to take CLs (e.g. 这 个 东西, but not 这 东西). 
+This was changed but it is now commented out to see how well this was being done through the noun types.
+We need some nouns (few nouns, such as time nouns 天 or 年 to not take a classifier... It is still unclear what is the best way to do that.
+
+We linked the LTOP of the head dtg and the non head dtr because this is the expected result in intersective modification.
+"""
+  [ INFLECTED infl-satisfied,
+    SYNSEM phr-synsem & [ LOCAL [ CAT [ VAL [ SUBJ #subj,
+					      SPR #spr,
+					      SPEC #spec ],
+					POSTHEAD #ph ],
+				  CONT.HOOK.CLAUSE-KEY #clause ],
+			  MODIFIED #modif ],
+    HEAD-DTR [ INFLECTED infl-satisfied,
+	       SYNSEM [ R-PERIPH na-or--,
+			L-PERIPH -,
+			LOCAL [ CAT [ HEAD #head,
+				      VAL [ SUBJ #subj,
+					    COMPS <> & #comps,
+					    SPR < #synsem & 
+						  canonical-synsem . #spr >,
+					    SPEC #spec ],
+				      POSTHEAD #ph ],
+				CONT.HOOK #hdhook & [ CLAUSE-KEY #clause,
+						      LTOP #ltop] ],
+			MODIFIED #hmodif ] ],
+    NON-HEAD-DTR.SYNSEM #synsem &
+	      [ R-PERIPH na-or--,
+		LOCAL [ CAT.VAL [SPEC < [ LOCAL [ CAT [ HEAD #head,
+							VAL.COMPS #comps ],
+						  CONT.HOOK #hdhook ],
+					  MODIFIED #hmodif ] >,
+				 COMPS < > ],
+; 				 COMPS #unconstrained ],
+			CONT.HOOK [CLAUSE-KEY #clause,
+				   LTOP #ltop ] ],
+		MODIFIED #modif ],
+    C-CONT [ RELS <! !>, HCONS <! !>, ICONS <! !> ] ].
+
+spr-head-phrase := basic-head-spr-phrase & head-final &
+"""
+The COMPS of the produced phrase is empty  < > (this comes from the HEAD-DTR's, 
+but it's not really linked here -- same output ) 
+
+[CLASSIF #classif] added to allow phrases like 多少 钱 to allow numeral predicates
+"""
+  [ SYNSEM [ CLASSIF #classif,
+	     LOCAL.CAT.VAL.COMPS < >],
+    NON-HEAD-DTR.SYNSEM [ CLASSIF #classif,
+			  LOCAL [ CAT [ VAL.SUBJ < >,
+                    HEAD det ],
+                  CONT.HOOK #hook ] ],
+    C-CONT.HOOK #hook ].
+
+
+spr-head-h-sem-phrase := basic-head-spr-phrase & head-final &
+"""
+This specifier-sead rule is used for both NUM-CL classifier phrases and for DEGREE_SPR-ADJ/V. 
+
+
+This is head-final. So the CL is the head.
+
+This is passing up the COMPS value of the specifier (NON-HEAD-DTR) to the mother.
+This is being used for 我 很 喜欢 你  （as spr-head-noncl) and 我 买 了 两 只 猫 (as spr-head-cl)
+
+[FIXME] The passing of the NON-HEAD-DTR COMPS here is still a mystery.
+With have a special phrase for something like 3 kilos of cat. 
+
+
+Note here, the syntactic head is the semantic head
+note, we deleted NON-HEAD-DTR.SYNSEM.LOCAL.CAT.VAL.SUBJ < > : this is already specified in the heads
+ 
+DPF 21-dec-09 - use head-compositional etc instead...
+SSH 2015-04-16 discourse stgatus (definitesness)
+ZZF 20161113 added v into HEAD of head-dtr, to allow degree specifiers for verb +vjrpd
+ ---------------------------------------
+           | cmn             | yue
+ ---------------------------------------
+ DEM-CL-N  | uniq-fam-active (definite)
+ NUME-CL-N | type-id (indefinite)
+ CL-N      | type-id         | active-or-less ((in)definite)
+ N         | active-or-less  | type-id 
+ ---------------------------------------
+
+
+[CONT.HOOK.INDEX event] on the non-head daughter tries to ensure that numbers, when taken as specifiers of Classifiers, should behave as events (semantically). We need to be careful and think about other SPR-HEAD constuctions.  [NOT YET, things were breaking] [FIXME]
+Immediatly comming to mind: 很 喜欢; 这 个 猫
+"""
+  [ SYNSEM.LOCAL.CAT [ HEAD.MEASURE -,
+		       VAL.COMPS #spcomps ],
+    HEAD-DTR.SYNSEM [ BOUND na-or--,
+                      LOCAL [ CAT.HEAD +vjrpd,
+			      CONT.HOOK #hook ] ],
+    NON-HEAD-DTR.SYNSEM [ LOCAL [ CAT.VAL.COMPS #spcomps ],
+                          PUNCTUATED na-or-- ],
+    C-CONT.HOOK #hook ].
+
+
+;spr-head-nom-h-sem-phrase := basic-head-spr-phrase & head-final &
+;"""
+; [LMC] This didn't seem to ever be used
+;For nominalizer head `de', which must be [HEAD noun], but which is also the
+;semantic head.  Cannot easily collapse with either of the other two head-spec
+;rules, since the non-head-dtr can be [HEAD det] in the hspec-hs rule where
+;the head is a classifier.  FIX someday?
+;"""
+;  [ SYNSEM.LOCAL.CAT.VAL.COMPS #spcomps,
+;    HEAD-DTR.SYNSEM.LOCAL [ CAT.HEAD noun,
+;                CONT.HOOK #hook ],
+;    NON-HEAD-DTR.SYNSEM [ BOUND na-or--,
+;			  LOCAL.CAT [ HEAD +vjp,
+;				      VAL.COMPS #spcomps ] ],
+;    C-CONT.HOOK #hook ].
+
+
+;; For clauses without SPR (degree specifiers)
+;; HEAD's SUBJ should not be saturated, but this doesn't apply to adv
+basic-bare-spr-phrase := head-only &
+"""
+Not sure where this would be useful.
+
+This rule (and their children) seem to be allowing phrases such as:
+一 个 漂亮 的 姑娘
+
+However, they are EXTREMLY  ambiguous.
+"""
+  [ SYNSEM.LOCAL.CAT.VAL [ SPR < >,
+                           COMPS < > ],
+    HEAD-DTR.SYNSEM [ PUNCTUATED na-or--,
+	              LOCAL [ CAT [ HEAD +vjr,
+                                    VAL [ SPR < [ ] >,
+                                          COMPS < > ] ],
+                              CONT.HOOK [ INDEX #index,
+                                          LTOP #ltop ] ] ],
+    C-CONT [ RELS <! !>,
+             HCONS <! !>,
+             ICONS <! !>,
+             HOOK [ INDEX #index,
+                    LTOP #ltop ] ] ].
+
+
+bare-s-phrase := basic-bare-spr-phrase &
+"""
+FIXME, it was not clear what this was being used for. 
+It was disabled because it was generating a lot of ambiguity.  
+"""
+  [ HEAD-DTR.SYNSEM.LOCAL.CAT [ HEAD +vj,
+                                VAL.SUBJ < [ ] > ] ].
+
+bare-adv-phrase := basic-bare-spr-phrase &
+  [ HEAD-DTR.SYNSEM.LOCAL.CAT. HEAD adv ].
+
+
+
+basic-bare-np-phrase := head-only &
+"""
+;; Bare NP phrase.  Consider modifying the PRED value of the quantifier 
+;; relation introduced to match the semantic effect of bare NPs in your 
+;; language.
+
+;; MATRIX REDEFINITION
+;; Note: we removed the SPEC <> constraint
+;;; DPF - motivate? - shouldn't the head at least propagate SPEC to mother?
+
+FIXME LMC&FCB tried to made MC - to stop punctuation-end to join; but it is somehow breaking adjectives to pick up normal nouns... 
+
+Needs to pass some important features, for example, NONSUBJ (whether something was marked as impossible to become a subject) 
+"""
+  [ SYNSEM.LOCAL.CAT [ NONSUBJ #nonsubj,
+		       VAL [ SPR < >,
+			     SUBJ < >,
+			     COMPS < > ],
+		       MC bool],
+    HEAD-DTR.SYNSEM [ PUNCTUATED na-or--,
+	              LOCAL [ CAT [ NONSUBJ #nonsubj,
+				    VAL [ SPR < [ LOCAL.CAT.HEAD det,
+						  OPT + ] >,
+					  SUBJ < >,
+					  COMPS olist ] ],
+                              CONT.HOOK [ INDEX #index,
+                                          LTOP #larg ] ] ],
+    C-CONT [ RELS <! quant-relation &
+                   [ LBL #ltop,
+                     ARG0 #index,
+                     RSTR #harg ] !>,
+             HCONS <! qeq & 
+                    [ HARG #harg,
+                      LARG #larg ] !>,
+             ICONS <! !>,
+             HOOK [ INDEX #index,
+                    LTOP #ltop ] ] ].
+
+bare-np-phrase := basic-bare-np-phrase & c-cont-1 &
+"""
+This rule transforms a common noun without a determiner to be NP.
+This results on a NP marked as [BARE +].
+
+We added c-cont-1 to propagate cfrom and cto to the to the mrs.
+It inherits from 'c-cont-1' because we only introduce one (hence 1) 
+predicate in the mrs.
+
+
+This is not a 'headed rule', since it changes the valency. So we must carefully pass up everything that might be relevant. For example, LOC. [FIX] I believe a few other things might be missing.
+
+
+<ex>我 吃 苹果 。
+(I eat apples.)
+
+Added [INTERJECTED #interjected] to copying. This helps block modification (with interjections) of NPs if they are going through further process. At the very least, this blocks certain phrases from being pumped by np-time-adp.
+"""
+  [ SYNSEM [ BARE +,
+             LIGHT #light,
+	     INTERJECTED #interjected,
+	     LOCAL.CAT [ HEAD noun & [ GENERIC -,
+				       LOC #loc],
+                         NONSUBJ #ns ],
+             NON-LOCAL [ SLASH 0-dlist,
+                         QUE #que ] ],
+    HEAD-DTR.SYNSEM [ LIGHT #light,
+		      INTERJECTED #interjected,
+                      LOCAL [ CAT [ HEAD.LOC #loc,
+				    NONSUBJ #ns ],
+			      CONT.HOOK.INDEX.COG-ST activ-or-less ],
+                      NON-LOCAL.QUE #que ],
+    C-CONT [ RELS <! [ PRED exist_q_rel ] !>,
+             HCONS <! qeq !> ] ].
+
+
+;; CL-phrase => nominal phrase
+basic-bare-nominal-phrase := unary-phrase &
+"""
+[ EMPTY - ] on child node to prevent temporal phrases like 昨天 from being converted from ADP to NP again.
+And [ EMPTY + ] on parent node to signal this NP has no head noun.
+
+
+LMC: Why was this forced as [INDEX.SORT nontime-s] ?
+"""
+  [ SYNSEM [ LOCAL [ CAT [ HEAD noun & [ EMPTY +],
+                           VAL [ SUBJ < >,
+                                 COMPS < > ],
+                           POSTHEAD +,
+                           NONSUBJ #ns ],
+                     COORD -,
+;                      CONT.HOOK #hook & [ INDEX.SORT nontime-s ] ],
+                     CONT.HOOK #hook ],
+             NON-LOCAL #nonlocal ],
+    ARGS < [ SYNSEM [ LOCAL.CAT [ HEAD.EMPTY -,
+                                  VAL [ SUBJ < >,
+                                        SPR olist ],
+                                  NONSUBJ #ns ], 
+                      NON-LOCAL #nonlocal ] ] >,
+    C-CONT [ RELS <! noun-relation &
+                   [ PRED generic_n_rel,
+                     LBL #ltop,
+                     ARG0 #index ] !>,
+             HCONS <! !>,
+             ICONS <! !>,
+             HOOK #hook &
+                  [ LTOP #ltop,
+                    INDEX #index ] ] ].
+
+
+
+
+
+
+
+
+
+
+
+
+bare-nominal-postp-phrase := basic-bare-nominal-phrase &
+"""pushing DE construction to be NP, including relativing DE and associative DE. DeP should have its COMP fulfilled, thus avoid nominalizing DE alone.
+<ex>我 喜欢 很 红 的
+<ex>我 喜欢 他 写 的
+<ex>我 喜欢 吃 的
+<ex>我 的 哭 了
+<ex>我　喜欢　那　本　红　的
+<ex>我　喜欢　的　是　那　本　红　的
+Ideally for ADJ/V + DE, only the slashed DeP should be pushed up to be NP. But adding in this constraint would prevent the rule
+from being applied for possessive NP+DE. To be fixed later.
+
+
+LMC/BOND: 的_comp is allowing non extracted subjs (opt-subj-decl), that is weird (it should be blocked on the DE). 
+We want 0-nom-p would need to block the associative DE (not sure how yet).
+
+
+This 0-nom-p phrases were also allowed to be pumped into locative adjuncts.
+As such, we want to add SYNSEM.LOCAL.CAT.HEAD.LOC na-or--  to the NPs produced by this 的 in case of 'missing NPs'.
+
+
+[SORT nontime-s] to block these pumped postposition phrases into time adjucts.
+"""
+  [ SYNSEM.LOCAL [ CAT [ HEAD.LOC na-or--,
+		       VAL.SPR < [ LOCAL.CAT.HEAD det,
+				   OPT + ] > ],
+		   CONT.HOOK.INDEX.SORT nontime-s ],
+    ARGS < [ SYNSEM.LOCAL.CAT [ HEAD postp-nominalizable &
+                                     [ MOD < [ LOCAL.CONT.HOOK [ LTOP #ltop,
+					                         INDEX #index ] ] > ],
+                                VAL.COMPS < > ] ] >,
+    C-CONT.HOOK [ LTOP #ltop,
+		  INDEX #index ] ].
+
+bare-nominal-det-phrase := basic-bare-nominal-phrase &
+"""
+This rule is looking for a determiner that is still looking for a SPEC (something to specify over)
+and will produce a nominal-phrase (from the inherited type) that is fully specified (i.e. an NP).
+
+The comps cannot be empty because there are sentences like:
+<ex>  这 是 他 的 地址 。
+Where a single determiner has to become an NP
+
+
+
+
+SPEC < [OPT +] >
+"""
+  [ SYNSEM.LOCAL [ CAT [ HEAD.LOC na-or--,
+			 VAL.SPR < > ] ],
+    ARGS < [ SYNSEM.LOCAL [ COORD na-or--,
+			    CAT [ HEAD det,
+				  VAL [ SPEC < [ OPT +,
+						 LOCAL.CONT.HOOK [ LTOP #ltop,
+								   INDEX #index ] ] >
+					     ] ] ] ] >,
+    C-CONT.HOOK [ LTOP #ltop,
+		  INDEX #index ] ].
+
+
+
+bare-nominal-det-cl-phrase := bare-nominal-det-phrase &
+"""
+This is for bare determiner+classifier phrases being pumped into NPs. The classifier should always be present.
+<ex> 这 个 是 我 的 朋友 。 
+
+
+In this case, [COMPS < >] means that this determiner found a classifier being pumped into an NP. In this case, we rely on the fact that determiners with classifiers are picking up the SORT value from their classifiers to decide if they can be pumped into time adverbials or not.
+
+"""
+  [ SYNSEM.LOCAL [ CONT.HOOK.INDEX.SORT  #sort ],
+    ARGS < [ SYNSEM.LOCAL [ CAT [ VAL [ COMPS < > ] ],
+			    CONT.HOOK.INDEX.SORT #sort ] ] > ].
+
+
+bare-nominal-det-nocl-phrase := bare-nominal-det-phrase &
+"""
+This is for hyper-bare determiners being pumped into NPs. 
+<ex> 这 是 我 的 朋友 。 
+
+COMPS < [ ] > means that this determiner phrase didn't find a classifier before being pumped. 
+In this case, we want to state the result is [SORT nontime-s] because we don't want these hyper-bare determiner phrases from being pumped into time adjuncts. 
+"""
+  [ SYNSEM.LOCAL [ CONT.HOOK.INDEX.SORT nontime-s ],
+    ARGS < [ SYNSEM.LOCAL [ CAT [ VAL [ COMPS < [ ] > ] ] ] ] > ].
+
+
+
+bare-nominal-cls-phrase := basic-bare-nominal-phrase &
+"""pushing num + classifier to be NP
+<ex> 我　买　三　本
+
+This 0-nom-p phrases were also allowed to be pumped into locative adjuncts.
+As such, we want to add SYNSEM.LOCAL.CAT.HEAD.LOC na-or--  to the NPs produced by this 的 in case of 'missing NPs'.
+
+Some classifiers (i.e. time classifiers) expect to be able to pumped into time adverbials because they ought to 'classify' a time noun (e.g. 点 in 三 点 中). So, in order to allow phrases like 三 点 to be pumped into time adverbials, we need to pass the values of SORT between what it ought to modify to what it has become. If this is indeed the sort 'time-s', then it should allow it to be pumped into a time adverbial 
+
+
+[VAL.SPR < > ] In the current treatment of zero-nominal CLS and DET phrases separately, it is probably safe to require that 0-nominal-classifier phrases to have been specified (i.e. to have taken a numeral before the classifier).
+
+
+"""
+  [ SYNSEM.LOCAL [ CAT [ HEAD.LOC na-or--,
+			 VAL.SPR < [ LOCAL.CAT.HEAD det,
+				     OPT + ] > ],
+		   CONT.HOOK.INDEX.SORT #sort ],
+    ARGS < [ SYNSEM.LOCAL [ COORD na-or--,
+                            CAT [ HEAD classifier &
+				       [ MOD < [ LOCAL.CONT.HOOK [ LTOP #ltop,
+								   INDEX #index & [SORT #sort] ] ] > ],
+				  VAL.SPR < > ] ] ] >,
+    C-CONT.HOOK [ LTOP #ltop,
+		  INDEX #index ] ].
+
+
+;; SSH 2015-04-21: Generic NPs have an underspecified COG-ST value.
+;; [CONT.HOOK.INDEX.COG-ST type-id] is deleted.
+generic-np-phrase := basic-bare-np-phrase &
+  [ SYNSEM [ LOCAL.CAT [ HEAD noun & [ GENERIC + ],
+			 NONCOMP + ],
+	     NON-LOCAL.SLASH 0-dlist ],
+    HEAD-DTR.SYNSEM [ BARE -, 
+		      LOCAL [ CAT.HEAD.CLASSIFIED na-or-- ] ],
+    C-CONT.RELS <! [ PRED generic_q_rel ] !> ].
+
+
+meas-np-phrase := head-final & head-valence-phrase & phrasal &
+"""
+[FIXME]  This is being used to parse WRONG NPs like  三 猫
+This can probably be made into a mal-rule and then further atuned to allow MEASURE nouns (e.g. kilo, day, year) to link to the number directly. However, some of them （all if we want to force them) can be counting an NP.
+
+ 3 kilos of cat
+ 3 months sadness
+ 5 years of love
+
+So we would have to do something further because we don't want them as Noun-Noun compounds.
+
+===================================================
+; Restrict head-dtr to non-empty SPR, to avoid spurious ambiguity.
+;
+;; SSH 2014-04-16 added [CLASSIFIED na-or--]
+;; SSH 2014-04-21 noun -> +njd, [NONCOMP +] added for blocking overgeneration.
+;; why +njd? This includes classifier, which should be handled using head-specifier rule
+
+[EMPTY -] on the HEAD-DTR to prevent empty nouns from applying (e.g., from 0-nom-cls... which are essentially classifier phrases)
+"""
+  [ SYNSEM.LOCAL.CAT [ NONCOMP +,
+		       HEAD [ MEASURE + ],
+		       VAL [ SUBJ < >,
+			     SPR < >,
+			     COMPS < > ] ],
+    NON-HEAD-DTR.SYNSEM.LOCAL [ CAT [ HEAD num,
+				      VAL.SPR < > ],
+				CONT.HOOK [ LTOP #ltop,
+					    INDEX #nhind ] ],
+    HEAD-DTR.SYNSEM lex-synsem & [ BARE -,
+				   LOCAL [ CAT [ HEAD noun & [ EMPTY -,
+							       GENERIC na-or--,
+							       CLASSIFIED na-or-- ],
+						 VAL.SPR < [ ] > ],
+					   CONT.HOOK [ LTOP #ltop,
+						       INDEX #hind & [ COG-ST uniq+fam+act ] ] ] ],
+    C-CONT [ HOOK.INDEX #hind,
+             RELS <! [ LBL #ltop,
+                       PRED measure_x_rel,
+                       ARG1 #hind,
+                       ARG2 #nhind ],
+		     quant-relation &
+		     [ PRED exist_q_rel,
+		       ARG0 #hind,
+		       RSTR #harg ] !>,
+             HCONS <! qeq & 
+                      [ HARG #harg,
+			LARG #ltop ] !>,
+             ICONS <! !> ] ].
+
+
+;; SSH 2014-12-19: 追赶 张三 ！
+;; non-asepct & main clause
+opt-subj-imperative-phrase := imp-head-opt-subj-phrase &
+"""
+
+Here [HEAD.EXISTV -] prevent forming imperative sentences with 有 which seems a very plausible restriction to save on ambiguity.
+"""
+  [ SYNSEM [ LOCAL.CAT.HEAD verb & [ COP - ],
+	     NON-LOCAL.SLASH 0-dlist ],
+    HEAD-DTR.SYNSEM.LOCAL [ CAT [ MC +,
+                                  HEAD.EXISTV - ],
+			    CONT.HOOK.INDEX.E.ASPECT non-aspect ] ].
+
+;; FZZ 2017-08-27: removing MC + from HEAD-DTR, as optional subj can happen in sub clause, e.g. "下午 下课 以后 ， 我 喜欢 去 打球 。"
+opt-subj-declarative-phrase := decl-head-opt-subj-phrase &
+"""
+This rule discharges the subject of sentences.
+
+It is not clear why [EXISTV -] was added to the HEAD-DTR.
+
+有 人 来 了 。
+
+"""
+  [ SYNSEM [ LOCAL.CAT [ HEAD +vj,
+                         VAL.SPR olist ],
+             NON-LOCAL #non-local ],
+    HEAD-DTR [ SYNSEM [ LOCAL [ ; CAT.HEAD.EXISTV -,
+			        CONT.HOOK.INDEX.E.ASPECT aspect ],
+                        NON-LOCAL #non-local ] ] ].
+
+;;ZZF 2016-12-8: removed CLASSIFIED na-or-- from head-dtr to allow compound to combine with classifiers later.
+basic-n-n-compound-phrase := head-final &
+"""[EMPTY -] to stop combining NPs with no head noun, like DeP.
+
+<ex> 中国 学生 们 来 了 。
+The goal being (中国 (学生 们)) 来 了 。
+
+My result is light - 
+"""
+  [ SYNSEM [ LOCAL.CAT #cat,
+	     NON-LOCAL #nonloc,
+	     LIGHT -  ],
+    HEAD-DTR.SYNSEM [ LOCAL [ CAT #cat & 
+				  [ HEAD noun & [ EMPTY - ],
+				    VAL.COMPS < > ],
+			      CONT.HOOK [ LTOP #ltop,
+                                      INDEX #hind ] ],
+		      NON-LOCAL #nonloc ],
+    NON-HEAD-DTR.SYNSEM.LOCAL [ CAT [ HEAD noun & [ EMPTY - ],
+				      VAL.COMPS < >,
+				      POSTHEAD - ] ],
+    C-CONT [ HOOK [ LTOP #ltop,
+		    INDEX #hind ],
+	     ICONS <! !> ] ].
+
+;; ZZF 2016-11-30 a super type for pronoun-noun and propernoun-noun compounds
+pronproper-noun-compound-phrase := basic-n-n-compound-phrase &
+  [ HEAD-DTR.SYNSEM.LOCAL [ CAT.VAL.SPR < synsem >,
+                            CONT [ RELS.LIST.FIRST noun-relation,
+                                   HOOK.INDEX.SORT nontime-s] ],
+    NON-HEAD-DTR.SYNSEM [ LIGHT +,
+                          LOCAL [ CAT.VAL.SPR < >,                                       
+                                  CONT.HOOK.INDEX #nhind ] ], 
+    C-CONT [ HOOK [ LTOP #ltop,
+                    INDEX #hind ],
+	     RELS <! arg12-ev-relation & [ LBL #ltop,
+                                           ARG1 #hind, 
+				           ARG2 #nhind ] !>,
+             HCONS <! !> ] ].
+
+;; ZZF 2016-9-23: for pronoun+noun.
+pronoun-noun-compound-phrase := pronproper-noun-compound-phrase & c-cont-1 &
+"""
+Forms a pronoun-noun compound phrase. The head has to be a noun with noun-relation, thus excluding nominalized DE phrases. The non-head-daughter can't be a proper noun or common noun, constrained using LIGHT and SPR. Using general_rel to include personal pronouns and wh-pronouns.
+<ex>我 朋友 哭 了
+<nex>张三 朋友 哭 了
+<nex>苹果 朋友 哭 了
+<nex>他 解决 了 产品 的 质量 问题
+
+Head noun can't be temporal noun, using nontime-s.
+Strictly the head noun should refers to human only, which is to be treated later, 
+e.g. adding a HUMAN +/- feature for all nouns
+"""
+  [ NON-HEAD-DTR.SYNSEM.LOCAL.CONT.RELS.LIST.FIRST [ PRED pron_rel ], 
+    C-CONT.RELS <! [ PRED _de_p_assoc_rel ] !> ].
+
+;; for propernoun+noun, "中国 老师"
+propernoun-noun-compound-phrase := pronproper-noun-compound-phrase & c-cont-1 &
+  [ NON-HEAD-DTR.SYNSEM.LOCAL.CONT.RELS.LIST.FIRST [ PRED named_rel ], 
+    C-CONT.RELS <! [ PRED compound_p_rel ] !> ].
+
+;; yet another for noun-propernoun phrases for appositions, treating as compounds now
+noun-proper-compound-phrase := basic-n-n-compound-phrase &
+  [ NON-HEAD-DTR.SYNSEM.LOCAL.CONT [ RELS.LIST.FIRST noun-relation,
+                                 HOOK.INDEX.SORT nontime-s],
+    HEAD-DTR.SYNSEM [ LIGHT +,
+                      LOCAL [ CAT.VAL.SPR < >,                                       
+                              CONT [ HOOK.INDEX #nhind,
+                                     RELS.LIST.FIRST [ PRED named_rel ] ] ] ], 
+    C-CONT [ HOOK [ LTOP #ltop,
+                    INDEX #hind ],
+	     RELS <! arg12-ev-relation & [ LBL #ltop,
+                                           PRED compound_p_rel,
+                                           ARG1 #hind, 
+				           ARG2 #nhind ] !>,
+             HCONS <! !> ] ].
+
+
+;; DPF 27-jul-11 - Removed HEAD-DTR..MODIFIED notmod to allow "old dog who 
+;; can bark" |一 只 会 叫 的 老 狗|
+;;
+;; SSH 2014-04-16: added [CLASSIFIED na-or--] to prevent [一 只 猫]
+;; from being analyzed as a compound
+noun-noun-compound-phrase := basic-n-n-compound-phrase &
+"""Forms a noun-noun compound phrase
+<ex>他 解决 了 质量 问题
+<ex>他 解决 了 产品 质量 问题
+<ex>他 解决 了 产品 的 质量 问题
+<nex>他 解决 了 张三 问题
+<nex>他 解决 了 我 问题
+For compounds with >2 nouns, we have bracketting ambiguity, e.g. [产品 [质量 问题]] or [[产品 质量] 问题]. 
+The rule allows both interpretations, leaving the ambiguity for statistical ranking model to determine later."""
+  [ NON-HEAD-DTR.SYNSEM.LOCAL [ CAT.VAL.SPR < synsem >,
+                                CONT.HOOK [ LTOP #larg,
+                                            INDEX #nhind ] ],
+    HEAD-DTR.SYNSEM.LOCAL.CAT.VAL.SPR < synsem >,
+    C-CONT [ HOOK [ LTOP #ltop,
+                    INDEX #hind ],
+             RELS <! quant-relation & [ PRED exist_q_rel,
+					ARG0 #nhind,
+					RSTR #harg ],
+                      arg12-ev-relation & [ LBL #ltop,
+                                            PRED compound_p_rel,
+                                            ARG1 #hind, 
+				            ARG2 #nhind ] !>,
+             HCONS <! qeq & [ HARG #harg,
+                              LARG #larg ] !> ] ].
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Resultative Compounds 
+;;; SSH 2015-04-06
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; @phdthesis{lee:13,
+;   title={Event Structure and Grammatical Patterns: Resultative Constructions},
+;   author={Lee, Leslie},
+;   year={2013},
+;   school={University of California, San Diego}
+; }
+;  Type 4, 6, 13 were not introduced in order to reduce overgeneration (they are rarely used).
+;  Type 8 can be handled as head-opt-comp-phrase. 
+;  Type 9 is redundant to others except for noun incorporation.
+;  Instead, I added two more types in which 给 is used as V2 from the following article.
+; @article{li:90,
+;   title={{On VV Compounds in Chinese}},
+;   author={Li, Yafei},
+;   journal={Natural Language \& Linguistic Theory},
+;   volume={8},
+;   number={2},
+;   pages={177--207},
+;   year={1990},
+;   publisher={Springer}
+; }
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+rslt-compound-phrase := head-initial &
+"""
+This rule is the mother of many specific types of resultative phrases, where two predicates are joined in a serial construction, with different semantic outputs depending on the subcategorization of each of the verbs. 
+
+This top rule lays out some restrictions:
+- both phrases need to be non aspected.
+- both phrases need to be [LIGHT +], essentially requesting things without filled comps (???)
+- both phrases [BARE na-or--], which is a feature not used by verbs or adjectives and that is being used to block resultative constructions. As such, any verb that is marked as [BARE +] will be blocked from participating in these constructions; This is an interesting choice (just to save on the number of features). This is most likely not the best way to do this in the future, but for now it's ok. 
+
+[FIXME] Overall most of these structures produce a lot of gibberish. The semantics are also broken in a lot of places. This is also how complements of results (吃 完) are being handled, but there is no restrictions as to what can serve as a complement.
+"""
+  [ SYNSEM [ LOCAL.CAT [ HEAD #head,
+			 VAL [ SPR #spr,
+			       SPEC #spec ],
+			 MC luk, 
+			 MKG #mkg,
+			 HC-LIGHT #hclight, 
+			 POSTHEAD #posthead,
+			 NONSUBJ #nonsubj ],
+	     NON-LOCAL #nonloc ],
+    HEAD-DTR.SYNSEM lex-synsem &
+                [ BOUND na-or--,
+                  LIGHT +,
+                  BARE na-or--,
+                  ASPECTED na-or--,
+		  LOCAL [ CAT [ HEAD #head & +vj & [ CHAR.LENGTH one,
+						     STATIVE na-or--,
+                                                     EXISTV na-or--,
+                                                     COP -,
+						     AUX -,
+						     EMPTY -],				
+				VAL [ SPR #spr,
+				      SPEC #spec ],
+				MC na-or--,
+				MKG #mkg,
+				HC-LIGHT #hclight, 
+				POSTHEAD #posthead,
+				NONSUBJ #nonsubj ],
+			  CONT [ HOOK [ LTOP #ltop,
+					INDEX #arg1 ] ] ],
+                  NON-LOCAL #nonloc ],
+    NON-HEAD-DTR.SYNSEM lex-synsem &
+	        [ LIGHT +,
+		  BOUND na-or--,
+                  ASPECTED na-or--,
+		  LOCAL [ CAT [ HEAD +vj & [ AUX -,
+					     EMPTY -],
+				MC na-or-- ],
+			  CONT.HOOK.INDEX #arg2 ] ],
+    C-CONT [ HOOK [ LTOP #ltop,
+		    INDEX #arg1 ],
+	     RELS <! !>,
+             HCONS <! !>,
+	     ICONS <! rslt & [ IARG1 #arg1, 
+			       IARG2 #arg2 ] !> ] ].
+
+rslt-x_12-phrase := rslt-compound-phrase & 
+  [ SYNSEM.LOCAL.CAT.VAL [ SUBJ < #subj >,
+			   COMPS < #comp > ],
+    HEAD-DTR.SYNSEM.LOCAL.CAT.VAL.SUBJ < #subj >,
+    NON-HEAD-DTR.SYNSEM.LOCAL.CAT.VAL [ SUBJ < #subj >,
+					COMPS < #comp > ] ].
+
+rslt-1_1-phrase := rslt-compound-phrase & 
+  [ HEAD-DTR.SYNSEM.LOCAL.CAT.VAL.COMPS < >,
+    NON-HEAD-DTR.SYNSEM.LOCAL.CAT.VAL.COMPS < > ].
+
+rslt-12_1-phrase := rslt-compound-phrase & 
+  [ HEAD-DTR.SYNSEM.LOCAL.CAT.VAL.COMPS < [] >,
+    NON-HEAD-DTR.SYNSEM.LOCAL.CAT.VAL.COMPS < > ].
+
+subject-oriented-phrase := head-initial & 
+  [ SYNSEM.LOCAL.CAT.VAL.SUBJ < #subj >,
+    NON-HEAD-DTR.SYNSEM.LOCAL.CAT.VAL.SUBJ < #subj > ].
+
+object-oriented-phrase := head-initial & 
+  [ SYNSEM.LOCAL.CAT.VAL.COMPS < #comp & [ LOCAL.CONT.HOOK.INDEX.PNG.ANIMACY animate ] >,
+    NON-HEAD-DTR.SYNSEM.LOCAL.CAT.VAL.SUBJ < #comp > ].
+
+inverse-oriented-phrase := head-initial & 
+  [ SYNSEM.LOCAL.CAT.VAL [ SUBJ < #subj & [ LOCAL.CONT.HOOK.INDEX.PNG.ANIMACY inanimate ] >,
+			   COMPS < #comp & [ LOCAL.CONT.HOOK.INDEX.PNG.ANIMACY animate ] > ],
+    HEAD-DTR.SYNSEM.LOCAL.CAT.VAL [ SUBJ < #comp >,
+				    COMPS < #subj > ],
+    NON-HEAD-DTR.SYNSEM.LOCAL.CAT.VAL.SUBJ < #comp > ].
+
+
+rslt-1_12-phrase := rslt-x_12-phrase & subject-oriented-phrase &
+"""Type 2 (lee:13)
+<ex>张三 玩 忘 了 责任
+"""
+  [ HEAD-DTR.SYNSEM.LOCAL.CAT.VAL.COMPS < > ].
+
+rslt-12_12-phrase := rslt-x_12-phrase & subject-oriented-phrase &
+"""Type 1 (lee:13)
+<ex>张三 下 赢 棋
+"""
+  [ HEAD-DTR.SYNSEM.LOCAL.CAT.VAL.COMPS #comps,
+    NON-HEAD-DTR.SYNSEM.LOCAL.CAT.VAL.COMPS #comps ].
+
+;;it should not take degree specifier anymore.
+rslt-1_1-sbj-phrase := rslt-1_1-phrase & subject-oriented-phrase &
+"""
+This is a subject-oriented construction, where the subject of the first predicate is shared with the second predicate. As the name indicates, both predicates only take a single argument (e.g. intransitive verbs and adjectives); 
+
+<ex> 张三 跑 累 了 。
+('张三 ran', and '张三 became tired')
+
+Referred to as Type 10 in (lee:13).
+"""
+  [ SYNSEM.LOCAL.CAT.VAL.COMPS < >,
+    HEAD-DTR.SYNSEM.LOCAL.CAT.VAL [ SUBJ < #subj >,
+                                    SPR < > ],
+    NON-HEAD-DTR.SYNSEM.LOCAL.CAT.VAL.SUBJ < #subj > ].
+
+
+rslt-1_1-obj-phrase := rslt-1_1-phrase & object-oriented-phrase &
+"""
+This is an object oriented construction where there is no linking of arguments between both predicates, but there is a displacement of the argument of the second predicate. In other words, the resultative construction (e.g. 哭 红) will take a subject (that will be linked to the first predicate (e.g. 哭) and a complement which will be linked to the second predicate (e.g. 红).
+
+As the name indicates, both predicates only take a single argument (e.g. intransitive verbs and adjectives);
+
+<ex> 张三 哭 红 了 双眼 。
+('张三 cried' and, as a result, '双眼 became red')
+
+Referred to as Type 5 in (lee:13).
+
+The TDL here states that the SUBJ of the resultative construction will be the subject of the HEAD-DTR of this construction (which is HEAD-INITIAL, so it refers to the verb).
+"""
+  [ SYNSEM.LOCAL.CAT.VAL.SUBJ < #subj >,
+    HEAD-DTR.SYNSEM.LOCAL.CAT.VAL.SUBJ < #subj > ].
+
+
+rslt-1_1-noshare-phrase := rslt-1_1-phrase & subject-oriented-phrase &
+"""
+This rule expects a single argument for the resultative construction (as subject) but this argument is only linked to the second predicate (leaving the first predicate with an unexpressed argument). In other words, the resultative construction (e.g. 哭 红) will take only a subject, but this subject will only be linked to the second predicate (e.g.  红).  [This currently assumes that only inanimate objects can be taken as this argument: this is a very strong assumption and might have to be relaxed in the future] [FIXME]
+
+<ex> 双眼 哭 红 了 。
+
+Referred to as Type 11 in (lee:13)
+"""
+  [ SYNSEM.LOCAL.CAT.VAL [ SUBJ < [ LOCAL.CONT.HOOK.INDEX.PNG.ANIMACY inanimate ] >,
+			   COMPS < > ],
+    HEAD-DTR.SYNSEM.LOCAL.CAT.VAL.SUBJ < unexpressed & [ OPT + ] > ].
+
+
+rslt-12_1-sbj-phrase := rslt-12_1-phrase & subject-oriented-phrase &
+"""Type 7 (lee:13) (Zhangsan chased Lisi and Zhangsan got tired.)
+<ex> 张三 追 累 了 李四
+"""
+  [ SYNSEM.LOCAL.CAT.VAL.COMPS < #comp >,
+    HEAD-DTR.SYNSEM.LOCAL.CAT.VAL [ SUBJ < #subj >,
+				    COMPS < #comp > ],
+    NON-HEAD-DTR.SYNSEM.LOCAL.CAT.VAL.SUBJ < #subj > ]. 
+
+
+rslt-12_1-obj-phrase := rslt-12_1-phrase & object-oriented-phrase &
+"""
+Type 3 (lee:13) (Zhangsan chased Lisi to the extent of making Lisi tired.)
+<ex> 张三 追 累 了 李四 
+"""
+  [ SYNSEM.LOCAL.CAT.VAL [ SUBJ < #subj >,
+			   COMPS < #comp > ],
+    HEAD-DTR.SYNSEM.LOCAL.CAT.VAL [ SUBJ.FIRST #subj,
+				    COMPS < #comp >] ].
+
+rslt-12_1-inv-phrase := rslt-12_1-phrase & inverse-oriented-phrase
+"""
+Type 12 (lee:13)
+<ex> 这 种 药 吃 死 你
+
+""".
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+
+np-adp-phrase := unary-phrase &
+"""
+;; Make temporal NPs into adposition phrases
+;; SSH 2015-04-20: [ SUBJ < [] > ] on MOD is deleted:
+;; 明天 张三 打 跑 了 李四 
+;; FZZ 2017-01-10: [NONCOMP -] removed from daughter node to allow '他 六 点 起床'
+
+push noun to be prepositional phrase
+<ex>他 昨天 来 了
+
+
+This rule pumps a NP into a adjunct, by giving it the quality of a prepositional phrase.
+This adjunct modifies VPs/APs prehead (both pre or post subject).
+It introduces a special 'xxx_p' relation in the semantics to make this link. 
+
+We've also added [COMPS < >] to the only daughter since we want to force optional complements to be discharged or filled before going through this. Some relational nouns have obligatory complements
+"""
+  [ SYNSEM [ LOCAL.CAT [ HEAD prep & 
+			      [ EMPTY +,
+				MOD < [ LOCAL intersective-mod &
+					      [ CAT [ HEAD +vj,
+						      VAL [ COMPS < > ] ],
+						CONT.HOOK [ LTOP #ltop,
+							    INDEX #modind ] ] ] > ],
+			 POSTHEAD -,
+			 VAL [ SPR < >,
+                               SUBJ < >,
+                               COMPS < > ] ],
+             NON-LOCAL [ SLASH <! !>,
+                         REL <! !> ] ],
+    ARGS < [ SYNSEM.LOCAL [ CAT [ HEAD noun,
+                                  VAL [ SPR < >,
+					COMPS < > ] ],
+                            CONT.HOOK.INDEX #nind ] ] >,
+    C-CONT [ HOOK [ LTOP #ltop,
+                    INDEX #index,
+                    XARG #modind ],
+         RELS <! arg12-ev-relation &
+           [ LBL #ltop,
+             ARG0 #index,
+             ARG1 #modind,
+             ARG2 #nind ] !>,
+         HCONS <! !>,
+         ICONS <! !> ] ].
+
+
+
+np-num-phrase := unary-phrase &
+"""
+This unary rule pumps a number (which has [HEAD num]) into a NP. 
+This need to happen so it can be used in sentences like:
+<ex> 我 的 手机 号码 是 一二三 。
+<ex> 一二三 也 是 我 的 楼号 。
+
+<?> 这 些 五 比较 厚 。
+<?> 这 个 五 太 大 了 ！
+
+For now we assume that these numbers just become a N, and a bare NP would be formed if they have are used without a specifier. However, the ERG introduces some special numeric qantifier to block some interactions -- namely on N-N compounds. Since this would not have an immediate usage, we don't do it ('for now'?).
+
+In pumping rules we need to pass CONT if we want the labels and indexes (etc.) to remain the same for linking the semantics properly. Else they would get a new one and remain unliked with previous things.
+
+
+[EMPTY +] is being used to block pumped numbers from being used in NOUN-NOUN compounds.
+[LOC -] because these shouldn't be able to be pumped into location-adverbs. 
+[SORT nontime-s] to block pumped numbers from become time adverbials by themselves;
+
+
+2021.08.02 LKB-FOS was complaining about ARG-ST being redefined here. Commented it out for now. It feels it would be redundant.
+"""
+  [ ; ARG-ST < #spr >,
+    SYNSEM [ LOCAL [ CAT [ HEAD noun & [EMPTY +,
+					LOC -],
+;			   VAL [ SPR < #spr & synsem &
+			   VAL [ SPR < synsem &
+				       [ LOCAL.CAT [ HEAD det,
+						     VAL.SPR < > ] ] >,
+				 SUBJ < >,
+				 COMPS < > ] ],
+		     CONT.HOOK [ INDEX #index & [SORT nontime-s],
+				 LTOP #ltop ] ],
+	     NON-LOCAL [ SLASH <! !> ] ],
+    ARGS < [ SYNSEM [ LOCAL [ CAT [ HEAD num ],
+			      CONT [ HOOK.LTOP #ltop,
+				     RELS <! [ARG0 #index ] !>] ] ] ] >,
+    C-CONT [ RELS <! !>,
+	     HCONS <! !>,
+	     ICONS <! !> ] ].
+
+
+np-time-adp-phrase := np-adp-phrase &
+"""
+This is a specific case of 'np-adp-phrase'. It transforms temporal nouns into prepositional phrases. This selection is using 'SORT time-s'.
+<ex>他 昨天 来 了 。
+<ex>昨天 他 来 了 。
+
+[FIXME] Even though [SPECI -] is being set, the grammar currently doesn't predict anything through the change of this feature. The only places where SPECI is used is to distinguish count/mass nouns,  but this feature is never actually used (thus far).  
+
+[BOUND -] is necessary to block the empty semantic comps from separable verbs.
+(but it generally makes sense)
+
+**** [EMPTY -] was previously being used to block further pumping of pumped N (e.g. from numbers); However, if we want to pump certain empty phrases (e.g. 三 点 of  三 点 钟), then we must allow this ot happen. Numbers were directly marked as nontime-s.  
+
+
+[FIXME] We need to stop interjected things from being pumped further.
+[INTERJECTED na-or--] should prevent things that have been interjected from being pumped further
+[PUNCTUATED na-or--] should prevent the pumping for already punctuated phrases (i.e. pump first)
+
+"""
+  [ ARGS < [ SYNSEM [ INTERJECTED na-or--,
+		      PUNCTUATED na-or--,
+		      LOCAL [ CONT.HOOK.INDEX [ SORT time-s,
+						SPECI - ] ],
+		      BOUND - ] ] >,
+    C-CONT.RELS <! [ PRED time_p_rel ] !> ].
+
+
+
+np-place-adp-phrase := np-adp-phrase &
+"""
+This is a specific case of 'np-adp-phrase'. It transforms certain nouns compatible with [LOC +] into adjuncts.  This is currently marked as robust (since it's not clear if this is actually acceptable in written/formal contexts).
+
+Ensuring tha the  [SUBJ < [] >] on the MOD restricts the placement of this adjunct between the subject and the VP/AP (which is desired). 
+
+we need to block coordinations to be pumped into location adjuncts. This might be a sweeping statement, but reduces a lot of ambiguity. It seems COORD is not the right feature for this. [FIXME]
+"""
+  [ SYNSEM [ LOCAL [ CAT [ HEAD [ MOD < [ LOCAL [ CAT [ VAL [ SUBJ < [] > ] ] ] ] > ] ] ] ],
+    ARGS < [ SYNSEM [ LOCAL [ CAT [ HEAD noun & [LOC +] ] ] ] ] >,
+    C-CONT.RELS <! [ PRED place_p_rel ] !> ].
+
+
+
+head-opt-comp-phrase := basic-head-opt-comp-phrase &
+"""
+;; WWJ 2014-04-07: to block adj-not-adj prep-not-prep 
+;; SSH 2015-04-08: to block overgeneration, [ASPECTED +-or--] is added.
+;; SSH 2015-04-12: verb -> +vp
+
+LMC 2021-02-21: With the introduction of relational (locative) nouns -- which include variants with optional complements, this is no longer exclusive to verbs and prepositions. Added nouns as well.
+
+[FIXME]  Why would prepositions be able to have optional complements. Need to check this further.
+"""
+  [ SYNSEM phr-synsem, 
+    HEAD-DTR.SYNSEM [ ASPECTED +-or--,
+		      LOCAL.CAT.HEAD +nvp ] ].
+
+
+sent-subj-phrase := head-valence-phrase & head-only &
+"""
+; for sentential subjects
+"""
+  [ SYNSEM [ LOCAL.CAT.VAL [ SUBJ < [ LOCAL [ CAT [ HEAD +vjp,
+                            VAL [ SUBJ < >,
+                              SPR < >,
+                              COMPS < > ] ],
+                          CONT.HOOK.LTOP #sltop ] ] >,
+                 SPR < >,
+                 COMPS < > ],
+	     LIGHT - ],
+    HEAD-DTR.SYNSEM.LOCAL [ CAT [ VAL [ SUBJ < [ LOCAL.CAT.HEAD noun ] >,
+                    COMPS olist ],
+                  MC na ],
+                CONT.HOOK [ LTOP #ltop,
+                    INDEX #index,
+                    XARG #xarg ] ],
+    C-CONT [ HOOK [ LTOP #ltop,
+            INDEX #index ],
+         RELS <! !>,
+         ICONS <! !>,
+         HCONS <! qeq & [ HARG #xarg,
+                  LARG #sltop ] !> ] ].
+
+
+;; MATRIX change: promoted SF feature from event-only to individual,
+;; in order to simplify allowing sentential subjects while still excluding
+;; imperatives
+individual :+
+  [ SF iforce ].
+
+;; MATRIX addition: Need to distinguish non-coordinated entities
+
+non-coord-index := event-or-ref-index.
+non-coord-event := non-coord-index & event.
+non-coord-ref-ind := non-coord-index & ref-ind.
+
+;; Semantic sorts, initially just to distinguish temporal and non-temporal Ns
+;; Only individuals (i.e. 'x' in the MRS ) have  semsort. It can be used to sort things but.
+;; In principle the the index of the mother is the index of the daughter.
+
+time-s := semsort.
+nontime-s := semsort.
+
+
+common-s := nontime-s
+"""
+All common nouns should be nontime-s.
+""".
+
+pronproper-s := nontime-s
+"""
+A sort type being used to mark if things are either pronouns or proper nouns.
+This was created to constrain the attachement of the plural suffix 们 (men).
+Both pronouns and proper nouns should not allow it.
+""".
+
+
+hook := avm &
+"""
+;; MATRIX redefinition: Adopted GTOP of modern Matrix, but also relaxed
+;; constraint on XARG to allow for sentential subjects (with handle as XARG).
+;; SSH 2015-04-30: SPEAKER-KEY and HEARER-KEY for honorification
+"""
+  [ GTOP handle,
+    LTOP handle,
+    INDEX individual,
+    XARG semarg,
+    ICONS-KEY icons,
+    CLAUSE-KEY event,
+    SPEAKER-KEY ref-ind, 
+    HEARER-KEY ref-ind ].
+
+
+basic-head-opt-subj-phrase :+ 
+  [ HEAD-DTR.SYNSEM.BOUND na-or-- ].
+
+basic-head-opt-comp-phrase := head-valence-phrase & head-only &
+                              head-compositional &
+"""
+This was redefined from Matrix original type to allow noun heads 
+to discharge optional complements.
+"""
+  [ INFLECTED #infl,
+    SYNSEM canonical-synsem &
+       [ LOCAL.CAT [ VAL [ SUBJ #subj,
+                           COMPS #comps,
+                           SPR #spr,
+                           SPEC #spec ],
+                     MC #mc,
+                     POSTHEAD #ph ],
+         MODIFIED #mod ],
+    HEAD-DTR [ INFLECTED #infl & infl-satisfied,
+	       SYNSEM [ BOUND na-or--,
+			LOCAL [ CAT [ VAL [ SUBJ #subj,
+                                            COMPS < unexpressed &
+                                                    [ OPT +,
+                                                      OPT-CS #def,
+                                                      LOCAL.CONT.HOOK [ INDEX #index & [ COG-ST #def ],
+                                                                        ICONS-KEY #ikey,
+                                                                        CLAUSE-KEY #ckey ] ] . #comps >,
+                                            SPR #spr,
+                                            SPEC #spec ],
+                                      MC #mc,
+                                      POSTHEAD #ph ],
+                                CONT.HOOK.INDEX individual ],
+                        MODIFIED #mod ] ],
+    C-CONT [ RELS <! !>,
+             HCONS <! !>,
+             ICONS <! #ikey & non-focus & [ IARG1 #ckey,
+                                            IARG2 #index ] !> ] ].
+
+
+; head-gerundive-phrase := head-only &
+;   [ SYNSEM canonical-synsem & 
+; 	   [ LOCAL.CAT.HEAD.MOD < [] > ],
+;     HEAD-DTR.SYNSEM.LOCAL.CAT.HEAD verb ].
+
+
+basic-comp-marker-phrase := head-valence-phrase &
+			    head-compositional &
+			    basic-binary-headed-phrase &
+"""
+The comp-marker is technically a HEAD-marker phrase. The head is the marker's COMP.
+
+
+;;ZZF 2016-12-06 Markers are defined to take COMPS, but the head is still the non-marker node, non-head is the marker
+; 着了过 aspect markers & sentence final 了 & sentence final question particle 
+
+"""
+  [ STYLE #style,
+    SYNSEM phr-synsem & [ L-PERIPH #lperiph,
+			  R-PERIPH #rperiph,
+			  PUNCTUATED #punctuated,
+			  PAREN #paren,
+			  INTERJECTED #interjected,
+			  SPART #spart,
+			  LOCAL.CAT [ VAL [ SUBJ #subj,
+					    COMPS #comps,
+					    SPR #spr,
+					    SPEC #spec ],
+                                      MC #mc,
+				      POSTHEAD #ph ] ],
+    HEAD-DTR.SYNSEM #synsem & [ L-PERIPH #lperiph,
+				R-PERIPH #rperiph,
+				POSTCOMP na-or--,
+				INTERJECTED #interjected,
+				LOCAL [ CAT [ VAL [ SUBJ #subj,
+						    COMPS #comps,
+						    SPR #spr,
+						    SPEC #spec ],
+					      POSTHEAD #ph ] ] ],
+    NON-HEAD-DTR [ STYLE #style,
+		   SYNSEM [ L-PERIPH #lperiph,
+			    R-PERIPH #rperiph,
+			    PUNCTUATED #punctuated,
+			    PAREN #paren,
+			    SPART #spart,
+			    LOCAL.CAT [ HEAD marker-or-punct,
+                                        MC #mc,
+					VAL.COMPS < #synsem > ] ] ],
+    C-CONT [ RELS <! !>,
+             HCONS <! !>,
+	     ICONS <! !> ] ].
+
+;;ZZF 2016-12-06 parenthesis strategy: always combine with rparen first
+comp-marker-phrase := basic-comp-marker-phrase & marker-final-phrase & head-initial & 
+  [ NON-HEAD-DTR.SYNSEM.LOCAL.CAT.POSTHEAD na-or-+,
+    HEAD-DTR.SYNSEM.PUNCTUATED na-or-- ].
+
+marker-comp-phrase := basic-comp-marker-phrase & marker-initial-phrase & head-final &
+  [ NON-HEAD-DTR.SYNSEM.LOCAL.CAT [ POSTHEAD na-or-- ] ].
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; Rules for questions
+
+;SPART ma to stop MA being combined with questions
+;using QUE 1-dlist now since 1-plus-list doesn't give consistent results yet.
+
+question-phrase := unary-phrase-super & headed-phrase &
+"""
+[FIXME] Using [QUE 1-dlist] is blocking sentences from having more than one QUE-word. This needs to change, and it would solve a lot of no-parses. We need to create a 1-plus-dlist (one-or-more things in QUE).
+
+This rule transforms something that has an unresolved QUE value (i.e. question word) and transforms it into a sentence. This is currently not being applied to 吗 or 呢 questions because they don't use non-local QUE and they change the SF to ques on their own. 
+The HEAD-DTR is something that has QUE value of 1-dlist (i.e. it has an unresolved question word).
+
+This currently is being used for A-NOT-A questions. A-Not-A is blocking QUE by asserting is already full, but it doesn't say that it is a question. 
+
+<nex>谁 吃不吃 苹果 ？
+<ex>谁 告诉 吃不吃 苹果 ？ 
+<nex>他 买 苹果
+<ex>谁 买 了 苹果 ？
+<ex>他 买 了 什么 ？
+<ex>谁 买 了 什么 ？
+<ex>他 哭 不 哭 ？
+<ex>他 吃 不 吃 苹果 ？
+<nex>他 吃 不 吃 苹果 吗 ？
+"""
+  [ SYNSEM [ LOCAL [ CAT [ MC +,
+			   HEAD +vjc &
+			        [ FORM finite ],
+                           VAL #val & [ SUBJ < >, 
+                                      COMPS < > ] ],
+                     CONT.HOOK [ LTOP #ltop,
+			         INDEX #index & [ SF ques ],
+			         XARG #xarg ] ],
+             NON-LOCAL [ SLASH  #slash,
+                         QUE 0-dlist & [ LIST < > ],
+                         REL #rel ],
+             SPART ma ],
+    C-CONT [ HCONS <! !>,
+	     ICONS <! !>,
+             RELS <! !> ],
+    ARGS < #hdtr >,
+    HEAD-DTR #hdtr & 
+             [ SYNSEM [ LOCAL [ CAT.VAL #val,
+                                CONT.HOOK [ LTOP #ltop,
+				            INDEX #index & [SF prop-or-ques],
+				            XARG #xarg ] ],
+                        NON-LOCAL [ SLASH #slash,
+                                    QUE 1-dlist,
+                                    REL #rel ] ] ] ].
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;; Rules for utterances
+;; removed RELS.LIST.FIRST named-relation to relax constraint
+np-voc-adp-phrase := np-adp-phrase &
+"""
+push vocative noun to be prepositional phrase representing discoursal addressee
+<ex> 张三 ， 你 来 了 。
+"""
+  [ SYNSEM [ L-PERIPH +,
+             R-PERIPH -,
+             LOCAL.CAT.HEAD.PFORM voc ],
+    ARGS < [ SYNSEM [ PUNCTUATED +,
+                      LOCAL [ COORD -,
+                              CONT.HOOK.INDEX.PNG.ANIMACY human ] ] ] >,
+    C-CONT.RELS <! [ PRED addressee_p_rel ] !> ].
+
+utterance-phrase := head-valence-phrase & head-only &
+		    head-compositional &
+"""
+;; SSH 2015-04-30 - utterance for dialogue constraints such as honorifications.
+"""
+  [ SYNSEM [ UTTERED +,
+	     L-PERIPH +,
+	     R-PERIPH +,
+	     LOCAL local & [ CAT.VAL #val,
+			     CONT.HOOK [ SPEAKER-KEY #speaker,
+					 HEARER-KEY #hearer ],
+			     CTXT ctxt & [ C-INDICES [ SPEAKER #speaker,
+						       HEARER #hearer ] ] ] ],
+    HEAD-DTR phrase & [ SYNSEM [ UTTERED -,
+				 BOUND -,
+				 LOCAL [ COORD -,
+					 CAT [ VAL [ SUBJ < >,
+						     COMPS < > ],
+					       MC +,
+					       HEAD +vjrpc &
+						   [ FORM finite ],
+					       VAL #val ],
+					 CONT.HOOK [ INDEX #index,
+						     LTOP #ltop ] ],
+				 NON-LOCAL [ SLASH 0-dlist & [ LIST < > ],
+                                             QUE 0-dlist & [ LIST < > ] ] ] ],
+    C-CONT [ HOOK [ INDEX #index,
+                    LTOP #ltop ],
+	     RELS <! !>, 
+	     HCONS <! !>,
+	     ICONS <! addressor & [ IARG1 #speaker,
+				    IARG2 #index ], 
+		      addressee & [ IARG1 #hearer,
+				    IARG2 #index ] !> ] ].
+
+
+lex-item :+ [ SYNSEM.UTTERED na ].
+coord-phrase :+ 
+  [ SYNSEM.UTTERED -,
+    LCOORD-DTR.SYNSEM.UTTERED na-or--, 
+    RCOORD-DTR.SYNSEM.UTTERED na-or-- ].
+extracted-comp-phrase :+
+  [ SYNSEM.UTTERED -,
+    HEAD-DTR.SYNSEM.UTTERED na-or-- ].
+extracted-subj-phrase :+ 
+  [ SYNSEM.UTTERED -,
+    HEAD-DTR.SYNSEM.UTTERED na-or-- ].
+opt-subj-imperative-phrase :+ 
+  [ SYNSEM.UTTERED -,
+    HEAD-DTR.SYNSEM.UTTERED na-or-- ].
+head-opt-comp-phrase :+
+  [ SYNSEM.UTTERED -,
+    HEAD-DTR.SYNSEM.UTTERED na-or-- ].
+basic-binary-phrase :+ 
+  [ SYNSEM [ UTTERED -,
+	     LOCAL.CONT.HOOK [ SPEAKER-KEY #skey,
+			       HEARER-KEY #hkey ] ],
+    ARGS < [ SYNSEM [ UTTERED na-or--,
+		      LOCAL.CONT.HOOK [ SPEAKER-KEY #skey,
+					HEARER-KEY #hkey ] ] ],
+	   [ SYNSEM [ UTTERED na-or--,
+		      LOCAL.CONT.HOOK [ SPEAKER-KEY #skey,
+					HEARER-KEY #hkey ] ] ] > ]. 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;; DPF 2014-08-01 - Added unary and binary bridging rules to accommodate robust
+;; full-forest treebanking.  The strategy is to pump each normal edge in the
+;; chart to a "bridge head" edge via the unary rule, and then combine two
+;; adjacent such bridge-head edges using the binary rule.  This strategy,
+;; proposed by Woodley Packard, results in a mere doubling of the number of
+;; edges in each cell of the chart, rather than the square of the number of
+;; normal edges that resulted from trying just a binary bridging rule that
+;; accepted either bridge or normal edges.
+;;
+
+bridge-head := head-min &
+  [ BRIDGED luk ].
+
+bridge-binary-phrase := basic-binary-phrase &
+  [ SYNSEM [ LOCAL [ CAT [ HEAD bridge-head & [ BRIDGED + ],
+                           VAL [ SUBJ < >,
+                                 SPR < >,
+                                 COMPS < > ] ] ],
+             NON-LOCAL non-local-none ],
+    C-CONT [ HOOK [ LTOP #lbl, INDEX #arg0 ],
+	     RELS <! [ LBL #lbl,
+		       PRED bridge_x_rel,
+		       ARG0 #arg0,
+		       ARG1 #ind,
+		       ARG2 #rind ] !>,
+             HCONS <! !>,
+	     ICONS <! !> ],
+    ARGS < [ SYNSEM.LOCAL [ CAT.HEAD bridge-head & [ BRIDGED - ],
+			    CONT.HOOK.INDEX #ind ] ],
+           [ SYNSEM.LOCAL [ CAT.HEAD bridge-head,
+			    CONT.HOOK.INDEX #rind ] ] > ].
+
+bridge-unary-phrase := basic-unary-phrase &
+  [ SYNSEM [ LOCAL [ CAT [ HEAD bridge-head,
+                           VAL [ SUBJ < >,
+                                 SPR < >,
+                                 COMPS < > ] ] ],
+             NON-LOCAL non-local-none ],
+    C-CONT [ HOOK #hook,
+	     RELS <! !>,
+             HCONS <! !>,
+	     ICONS <! !> ],
+    ARGS < [ SYNSEM.LOCAL [ CAT.HEAD head,
+			    CONT.HOOK #hook ] ] > ].
+;;;
+;;; Rules for fragments
+;;;
+
+;;; The super type creates a proposition with an non-specified relation
+;;; CHECKME: why should it be lexrule?  Isn't it just phrase?
+;;;
+super-frag-rule := c-cont-1 &
+  [ INFLECTED infl-satisfied,
+    SYNSEM [ LOCAL [ CAT [ HEAD fragment_head &
+				[ MOD < > ],
+                           VAL super-saturated ] ],
+	     NON-LOCAL [REL <! !>,
+			QUE <! !>,
+			SLASH  <! !>]],
+    C-CONT [ HOOK [ LTOP #lbl,
+		    INDEX #ind ],
+	     RELS  <! relation &
+		    [ LBL #lbl,
+		      ARG0 #ind ] !> ], 
+    ARGS.FIRST [ INFLECTED infl-satisfied,
+		 SYNSEM [ NON-LOCAL [ REL <! !>,
+				      QUE <! !>,
+				      SLASH  <! !>]]]].
+
+;; The basic type creates a proposition with an unknown_v_rel and and an ARG 
+
+basic-frag-rule := super-frag-rule  &
+ [ C-CONT [ RELS  <! unknown-v-relation !>]].
+
+;;FZZ 2017-1-11 to copy SF up
+unary-frag-rule := basic-frag-rule & unary-phrase &
+ [ ARGS < [ SYNSEM.LOCAL [ COORD -,
+                           CONT.HOOK.INDEX.SF #sf ] ] >,
+   C-CONT.HOOK.INDEX.SF #sf ].
+
+frag-np-rule := unary-frag-rule &
+"""
+We are requiring that NP frags not be bound. 
+The prevents things like the complements of separable verbs to go through this rule.
+
+EMPTY -, however does limit building fragments of type 一个   红的  (0-nom-* rules)
+EMPTY + technically means I'm the output of a pumping rule (related to putting a generic thing in).
+
+Leaving [EMPTY -] actually prevents quite common sentences like '这 本 呢 ？' etc. 
+LMC: I have removed it and will check how bad the ambiguity gets. [FIXME] most Cls should be marked as nontime.
+"""
+ [ ARGS < [ SYNSEM [ LOCAL [ CAT [ HEAD  noun & 
+					 [ ; EMPTY -,                ;TESTING
+; 					 [ EMPTY bool,
+					   GENERIC - ],
+				   VAL saturated ],
+			     CONT.HOOK.INDEX #ind ],
+		     BOUND -  ] ] >,
+   C-CONT [ RELS.LIST.FIRST.ARG #ind,
+	    HCONS <!  !> ] ].
+
+;; ZZF 2017-1-9, to allow scopal-mod as well.
+frag-vmod-rule := unary-frag-rule &
+"""
+Fragment stand alone intersective adverb or pp
+"""
+ [  ARGS < [ SYNSEM.LOCAL.CAT [ HEAD +rp &
+				     [ MOD < [ ] > ],
+				VAL saturated ] ] > ].
+
+frag-vmod-scop-rule := frag-vmod-rule &
+  [ ARGS < [ SYNSEM.LOCAL.CAT.HEAD.MOD < [ LOCAL scopal-mod &
+                                                 [ CONT.HOOK.LTOP #larg ] ] > ] >,
+    C-CONT [ RELS.LIST.FIRST.LBL #larg,
+	     ICONS <! !> ] ].
+
+frag-vmod-int-rule := frag-vmod-rule &
+  [ ARGS < [ SYNSEM.LOCAL [ CAT.HEAD.MOD < [ LOCAL intersective-mod ] >,
+			    CONT.HOOK [ LTOP #klbl,
+					XARG #arg ] ] ] >,
+    SYNSEM.LOCAL.CONT.HOOK [ LTOP #klbl,
+		       INDEX #arg ],
+    C-CONT.HCONS <!  !> ].

@@ -1,0 +1,7 @@
+Language: Shanghainese
+Language code: wuu
+Lines: orth translit gloss translat
+Author: Ghau Yan Ngae
+Date: 2025-03-31
+
+......

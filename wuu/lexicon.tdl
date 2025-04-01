@@ -1,0 +1,218 @@
+;;; -*- Mode: TDL; Coding: utf-8 -*-
+
+;;; Punctuations
+period-marker := punctuation &
+  [ STEM < "。" >,
+    SYNSEM.LOCAL.CONT.HOOK.INDEX.SF prop,
+    TRAITS native_token_list ].
+
+question-marker := punctuation &
+  [ STEM < "？" >,
+    SYNSEM.LOCAL.CONT.HOOK.INDEX.SF ques,
+    TRAITS native_token_list ].
+
+; comma-marker := punctuation &
+;   [ STEM < "、" >,
+;    TRAITS native_token_list ].
+
+
+;;; Markers
+
+弗啊_qp := x_-_qpart_le &
+"""
+[va1] Basic question particle for polar questions;
+"""
+  [ STEM < "弗啊" >,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "弗", LENGTH two ],
+    TRAITS native_token_list ].
+
+弗啊_qp_2 := x_-_qpart_le &
+"""
+check: 弗啊_qp
+弗啊 will be split in preprocessing, so we need this split entry.
+"""
+  [ STEM < "弗","啊" >,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "弗", LENGTH two ],
+    TRAITS native_token_list ].
+
+"""
+TODO
+prehead 啊/何
+sentence final 啊/呀
+"""
+
+弗啊_crs := crs_le &
+  [ STEM < "弗啊" >,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "弗", LENGTH two ],
+    TRAITS native_token_list ].
+
+弗啊_crs_2 := crs_le &
+  [ STEM < "弗","啊" >,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "弗", LENGTH two ],
+    TRAITS native_token_list ].
+
+呢_qp := x_-_fqpart_le &
+  [ STEM < "呢" >,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "呢", LENGTH one ],
+    TRAITS native_token_list ].
+
+呢_crs := crs_le & 
+  [ STEM <"呢">,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "呢", LENGTH one ],
+    TRAITS native_token_list ].
+	
+了_crs := crs_le & 
+  [ STEM <"了">,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "了", LENGTH one ],
+    TRAITS native_token_list ].
+
+啊_crs := crs_le & 
+  [ STEM <"啊">,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "啊", LENGTH one ],
+    TRAITS native_token_list ].
+
+呀_crs := crs_le &
+  [ STEM <"呀">,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "呀", LENGTH one ],
+    TRAITS native_token_list ].
+
+啦_crs := crs_le & 
+  [ STEM <"啦">,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "啦", LENGTH one ],
+    TRAITS native_token_list ].
+
+拿_crs := crs_le &
+"""
+[no1]
+""" 
+  [ STEM <"拿">,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "拿", LENGTH one ],
+    TRAITS native_token_list ].
+
+个_crs := crs_le & 
+  [ STEM <"个">,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "个", LENGTH one ],
+    TRAITS native_token_list ].
+
+了_pfv := pfv-marker_le &
+"""
+This is the normal perfective marker LEH.
+"""
+  [ STEM <"了">,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "了", LENGTH one ],
+    TRAITS native_token_list ].
+
+
+
+拨_v := x_bei_le &
+"""
+[peh7]
+"""
+  [ STEM <"拨">,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "拨", LENGTH one ],
+    TRAITS native_token_list ].
+
+拿_v_1 := x_ba_le &
+"""
+[no1]
+"""
+  [ STEM <"拿">,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "把", LENGTH one ],
+    TRAITS native_token_list ].
+
+较_r := x_-_suf-adv_le &
+[ STEM < "较" >,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "较", LENGTH one ],
+    SYNSEM.LKEYS.KEYREL.PRED "_较_a_rel",
+    TRAITS native_token_list ].
+
+
+;;;;;;;;;;;;;;;;;;;
+;;; Basic Pronouns
+;;;;;;;;;;;;;;;;;;;
+
+我_n := n_-_pr-1sg_le &
+  [ STEM < "我" >,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "我", LENGTH one ],
+    TRAITS native_token_list ].
+
+伲_n := n_-_pr-1sg_le &
+  [ STEM < "伲" >,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "伲", LENGTH one ],
+    TRAITS native_token_list ].
+
+侬_n := n_-_pr-2sg_le &
+  [ STEM < "侬" >,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "侬", LENGTH one ],
+    TRAITS native_token_list ].
+
+伊_n := n_-_pr-3sg_le &
+  [ STEM < "伊" >,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "伊", LENGTH one ],
+    TRAITS native_token_list ].
+
+之_n := n_-_pr-3sg_le &
+  [ STEM < "之" >,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "之", LENGTH one ],
+    SYNSEM.LOCAL.CONT.HOOK.INDEX.PNG.ANIMACY non-human,
+    TRAITS native_token_list ].
+
+阿拉_n := n_-_pr-1pl-excl_le &
+  [ STEM < "阿拉" >,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "阿拉", LENGTH more-than-one ],
+    TRAITS native_token_list ].
+
+我伲_n := n_-_pr-1pl-incl_le &
+  [ STEM < "我伲" >,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "我伲", LENGTH more-than-one ],
+    TRAITS native_token_list ].
+
+㑚_n := n_-_pr-2pl_le &
+  [ STEM < "㑚" >,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "㑚", LENGTH one ],
+    TRAITS native_token_list ].
+
+伊拉_n := n_-_pr-3pl_le &
+  [ STEM < "渠拉" >,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "伊", LENGTH more-than-one ],
+    TRAITS native_token_list ].
+
+大家_n := n_-_indef-pr_le &
+ [ STEM < "大家" >,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "大", LENGTH more-than-one ],
+   SYNSEM [ LOCAL.CONT.HOOK.INDEX.PNG.ANIMACY human,
+	    LKEYS [ KEYREL.PRED person_n_rel,
+		    ALTKEYREL.PRED every_q_rel ] ],
+   TRAITS native_token_list ].
+
+有人_n := n_-_indef-pr_le &
+ [ STEM < "有人" >,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "有", LENGTH more-than-one ],
+   SYNSEM [ LOCAL.CONT.HOOK.INDEX.PNG.ANIMACY human,
+	    LKEYS [ ALTKEYREL.PRED some_q_rel ] ],
+   TRAITS native_token_list ].
+
+一切_n := n_-_indef-pr_le &
+ [ STEM < "一切" >,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "一", LENGTH more-than-one ],
+   SYNSEM [ LOCAL.CONT.HOOK.INDEX.PNG.ANIMACY inanimate,
+	    LKEYS [ ALTKEYREL.PRED every_q_rel ] ],
+   TRAITS native_token_list ].
+
+有个_n := n_-_indef-pr_le &
+ [ STEM < "有个" >,
+   SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "有", LENGTH more-than-one ],
+   SYNSEM [ LKEYS [ ALTKEYREL.PRED some_q_rel ] ],
+   TRAITS native_token_list ].
+
+搿搭_n := n_-_pr-loc_le &
+  [ STEM < "搿搭" >,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "搿", LENGTH two ],
+    SYNSEM.LKEYS.ALTKEYREL.PRED prox_dem_q_rel,
+    TRAITS native_token_list ].
+
+噎搭_p := n_-_pr-loc_le &
+  [ STEM < "噎搭" >,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "噎", LENGTH two ],
+    SYNSEM.LKEYS.ALTKEYREL.PRED dist_dem_q_rel,
+    TRAITS native_token_list ].

@@ -1,0 +1,459 @@
+;;; -*- Mode: TDL; Package: LKB -*-
+;;;
+;;; $Id: labels.tdl,v 1.8 2008-05-23 01:44:21 sfd Exp $
+
+;;; These label definitions are used by the LKB to put
+;;; labels on the nodes of the trees it displays.  They
+;;; are solely for the convenience of the grammar developer
+;;; and do not carry theoretical significance.  Accordingly,
+;;; though they are provided as part of the Matrix distribution,
+;;; users should customize them without hesitation.
+
+;;; NB: This is one tdl file in which order matters.
+;;; The LKB will choose the first label it encounters (in the
+;;; order below) which is consistent with the node it is
+;;; labeling.  If two labels are consistent with each other,
+;;; the more specific one must appear first in this list, or
+;;; it will never get used.
+
+
+;; SSH 2014-09-26: Following the Penn Tagset 。？！are tagged as '.'.
+
+; comma-label := label & 
+;             [ SYNSEM.LOCAL [ CAT [ HEAD comma,
+;                                    VAL.SPR < > ],
+;                              COORD-STRAT "" ],
+;               LABEL-NAME "," ].
+
+punct-label := label & 
+            [ SYNSEM.LOCAL [ CAT [ HEAD punct,
+                                   VAL.SPR < > ],
+                             COORD-STRAT "" ],
+              LABEL-NAME "PU" ].
+
+advp-label := label & 
+            [ SYNSEM.LOCAL [ CAT [ HEAD adv & [ MOD < [] >],
+                                   VAL.SPR < > ],
+                             COORD-STRAT "" ],
+              LABEL-NAME "ADVP" ].
+
+np-label := label & 
+            [ SYNSEM.LOCAL [ CAT [ HEAD noun,
+                                   VAL.SPR < > ],
+                             COORD-STRAT "" ],
+              LABEL-NAME "NP" ].
+
+np-top-label := label & 
+	    [ SYNSEM.LOCAL.CAT [ HEAD noun,
+				 VAL.SPR < > ],
+	      LABEL-NAME "NP-T" ].
+
+n-mid-label := label &
+            [ SYNSEM.LOCAL [ CAT [ HEAD noun,
+                                   VAL.SPR < [ ] > ],
+                             COORD +,
+			     COORD-REL implicit-coord-rel ],
+	      LABEL-NAME "NP-M" ].
+
+n-bottom-label := label &
+            [ SYNSEM.LOCAL [ CAT [ HEAD noun,
+                                   VAL.SPR < [ ] > ],
+                             COORD + ],
+              LABEL-NAME "NP-B" ].
+
+;; SSH 2014-10-10 Nominalizer 的 'de'
+;; According to Rose, this item cannot be labeled as 'N'. 
+nm-label := label &
+	   [ SYNSEM.LOCAL [ CAT [ HEAD nm,
+                                  VAL.SPR < [ ], anti-synsem > ],
+                            COORD-STRAT "" ],
+             LABEL-NAME "NM" ].
+
+n-label := label & 
+	   [ SYNSEM.LOCAL [ CAT [ HEAD noun,
+                                  VAL.SPR < [ ], ... > ],
+                            COORD-STRAT "" ],
+             LABEL-NAME "N" ].
+
+n-top-label := label &
+            [ SYNSEM.LOCAL.CAT [ HEAD noun,
+                                 VAL.SPR < [ ] > ],
+              LABEL-NAME "NP-T" ].
+
+np-mid-label := label &
+            [ SYNSEM.LOCAL [ CAT [ HEAD noun,
+                                   VAL.SPR < > ],
+                             COORD +,
+			     COORD-REL implicit-coord-rel ],
+	      LABEL-NAME "NP-M" ].
+
+np-bottom-label := label &
+            [ SYNSEM.LOCAL [ CAT [ HEAD noun,
+                                   VAL.SPR < > ],
+                             COORD + ],
+              LABEL-NAME "NP-B" ].
+
+v-mid-label := label &
+	   [ SYNSEM.LOCAL [ CAT [ HEAD verb,
+                                  VAL.COMPS < [ ], ... > ],
+                            COORD +,
+                            COORD-REL implicit-coord-rel ],
+             LABEL-NAME "V-M" ].
+
+v-bottom-label := label &
+	   [ SYNSEM.LOCAL [ CAT [ HEAD verb,
+                                  VAL.COMPS < [ ], ... > ],
+                            COORD + ],
+             LABEL-NAME "V-B" ].
+
+;;for easier debugging purpose
+v-aux-label := label & 
+           [ SYNSEM [ LOCAL [ CAT [ HEAD verb & [ AUX + ],
+                                    VAL.COMPS < [ ], ... > ],
+                              COORD-STRAT "" ],
+                      LIGHT + ],
+             LABEL-NAME "VAUX" ].
+
+v-label := label & 
+           [ SYNSEM.LOCAL [ CAT [ HEAD verb,
+                                  VAL.COMPS < [ ], ... > ],
+                            COORD-STRAT "" ],
+             LABEL-NAME "V" ].
+
+v-top-label := label & 
+	   [ SYNSEM.LOCAL.CAT [ HEAD verb,
+				VAL.COMPS < [ ], ... > ],
+	     LABEL-NAME "V-T" ].
+
+vp-mid-label := label &
+	    [ SYNSEM.LOCAL [ CAT [ HEAD verb,
+                                   VAL [ COMPS < >,
+                                         SUBJ < [ ] > ]],
+                             COORD +,
+                             COORD-REL implicit-coord-rel ],
+              LABEL-NAME "VP-M" ].
+
+vp-bottom-label := label &
+	    [ SYNSEM.LOCAL [ CAT [ HEAD verb,
+                                   VAL [ COMPS < >,
+                                         SUBJ < [ ] > ]],
+                             COORD + ],
+              LABEL-NAME "VP-B" ].
+
+vp-label := label & 
+            [ SYNSEM.LOCAL [ CAT [ HEAD verb,
+                                   VAL [ COMPS < >,
+                                         SUBJ < [ ] > ]],
+                             COORD-STRAT "" ],
+              LABEL-NAME "VP" ].
+
+vp-top-label := label & 
+	    [ SYNSEM.LOCAL.CAT [ HEAD verb,
+				 VAL [ COMPS < >,
+				       SUBJ < [ ] > ]],
+	      LABEL-NAME "VP-T" ].
+
+s-mid-label := label &
+	   [ SYNSEM.LOCAL [ CAT [ HEAD verb,
+                                  VAL [ COMPS < >,
+                                        SUBJ < > ] ],
+                            COORD +,
+                            COORD-REL implicit-coord-rel ],
+             LABEL-NAME "S-M"].
+
+s-bottom-label := label &
+	   [ SYNSEM.LOCAL [ CAT [ HEAD verb,
+                                  VAL [ COMPS < >,
+                                        SUBJ < > ] ],
+                            COORD + ],
+             LABEL-NAME "S-B"].
+
+pp-label-2 := label & 
+	    [ SYNSEM.LOCAL.CAT [ HEAD prep & [ EMPTY +] ,
+				 VAL [ SUBJ 1-list,
+                                       COMPS < > ] ],
+	      LABEL-NAME "PP" ].
+
+dep-assoc-label := label & 
+	    [ SYNSEM.LOCAL [ CAT [ HEAD postp-assoc,
+				 VAL.COMPS < > ] ],
+	      LABEL-NAME "deP" ].
+
+dep-comp-label := label & 
+	    [ SYNSEM.LOCAL [ CAT [ HEAD postp-comp,
+				 VAL.COMPS < > ] ],
+	      LABEL-NAME "deP/" ].
+
+locp-label := label & 
+	    [ SYNSEM.LOCAL.CAT [ HEAD postp,
+				 VAL.COMPS < > ],
+	      LABEL-NAME "LOCP" ].
+
+
+pp-label := label & 
+	    [ SYNSEM.LOCAL.CAT [ HEAD adp,
+				 VAL [ SUBJ 1-list,
+                                       COMPS < > ] ],
+	      LABEL-NAME "PP" ].
+
+voc-label := label & 
+	    [ SYNSEM.LOCAL.CAT [ HEAD adp & [ PFORM voc ],
+				 VAL.COMPS < > ],
+	      LABEL-NAME "VOC" ].
+
+s-label := label &
+           [ SYNSEM [ UTTERED na-or--,
+		      LOCAL [ CAT [ HEAD +vjp,
+				    POSTHEAD +,
+				    VAL [ COMPS < >,
+					  SUBJ < > ] ],
+			      COORD-STRAT "" ],
+                      NON-LOCAL.SLASH 0-dlist & [ LIST < > ] ],
+             LABEL-NAME "S"].
+
+s-slash-np-label := label &
+           [ SYNSEM [ UTTERED na-or--,
+		      LOCAL [ CAT [ HEAD +vj,
+				    POSTHEAD +,
+				    VAL [ COMPS < >,
+					  SUBJ < > ] ],
+			      COORD-STRAT "" ],
+		      NON-LOCAL.SLASH 1-dlist ],
+             LABEL-NAME "S/NP"].
+
+utt-label := label &
+           [ SYNSEM [ UTTERED +,
+		      LOCAL [ CAT [ HEAD +vjrpc,
+				    POSTHEAD +,
+				    VAL [ COMPS < >,
+					  SUBJ < > ] ],
+  		              COORD-STRAT "" ] ], 
+             LABEL-NAME "UTT"].
+
+frag-label := label & 
+	    [ SYNSEM.LOCAL.CAT.HEAD fragment_head,
+	      LABEL-NAME "FRG" ].
+
+s-top-label := label &
+	   [ SYNSEM.LOCAL.CAT [ HEAD verb,
+				VAL [ COMPS < >,
+				      SUBJ < > ] ],
+	     LABEL-NAME "S-T"].
+
+adj-label := label & 
+	   [ SYNSEM [ UTTERED na-or--,
+                      LIGHT +,
+		      LOCAL[ CAT.HEAD adj, 
+			     COORD-STRAT "" ] ],
+	     LABEL-NAME "ADJ" ].
+
+ap-label := label & 
+	   [ SYNSEM [ UTTERED na-or--,
+		      LOCAL[ CAT.HEAD adj, 
+			     COORD-STRAT "" ] ],
+	     LABEL-NAME "AP" ].
+
+de-label := label & 
+	    [ STEM < "的" >,
+              SYNSEM.LOCAL [ CAT [ HEAD postp,
+				 VAL.COMPS < [ ], ... > ] ],
+	      LABEL-NAME "de" ].
+
+loc-label := label & 
+	   [ SYNSEM.LOCAL.CAT [ HEAD postp,
+				VAL.COMPS < [ ], ... > ],
+	     LABEL-NAME "LOC" ].
+
+p-label := label & 
+	   [ SYNSEM.LOCAL.CAT [ HEAD prep,
+				VAL.COMPS < [ ], ... > ],
+	     LABEL-NAME "P" ].
+
+c-label := label &
+	   [ SYNSEM.LOCAL.CAT [ HEAD comp,
+				VAL.COMPS < [ ], ... > ],
+	     LABEL-NAME "C" ].
+
+cp-label := label &
+	    [ SYNSEM.LOCAL.CAT [ HEAD comp,
+				 VAL.COMPS < > ],
+	      LABEL-NAME "CP"].
+
+
+det-label := label &
+	     [ SYNSEM.LOCAL.CAT.HEAD det,
+	       LABEL-NAME "D"].
+
+; SSH 2014-10-16: aspectual markers (了, 着, 过)
+le-pfv-label := label & 
+	    [ STEM <"了">,
+	      SYNSEM [ LIGHT +,
+		       R-PERIPH na-or--,
+		       LOCAL [ CAT.HEAD marker,
+			       COORD-STRAT "" ] ],
+	      LABEL-NAME "AS" ].
+
+咗-pfv-label := label & 
+	    [ STEM <"咗">,
+	      SYNSEM [ LIGHT +,
+		       R-PERIPH na-or--,
+		       LOCAL [ CAT.HEAD marker,
+			       COORD-STRAT "" ] ],
+	      LABEL-NAME "AS" ].
+
+
+嚟-pfv-label := label & 
+	    [ STEM <"嚟">,
+	      SYNSEM [ LIGHT +,
+		       R-PERIPH na-or--,
+		       LOCAL [ CAT.HEAD marker,
+			       COORD-STRAT "" ] ],
+	      LABEL-NAME "AS" ].
+
+zhe-label := label & 
+	    [ STEM <"着">,
+	      SYNSEM [ LIGHT +,
+		       R-PERIPH na-or--,
+		       LOCAL [ CAT.HEAD marker,
+			       COORD-STRAT "" ] ],
+	      LABEL-NAME "AS" ].
+
+guo-label := label & 
+	    [ STEM <"过">,
+	      SYNSEM [ LIGHT +,
+		       R-PERIPH na-or--,
+		       LOCAL [ CAT.HEAD marker,
+			       COORD-STRAT "" ] ],
+	      LABEL-NAME "AS" ].
+
+; SSH 2014-10-16: Sentence-final particles (了)
+le-crs-label := label &
+	     [ STEM <"了">,
+	       SYNSEM [ LIGHT +,
+			R-PERIPH +,
+			LOCAL [ CAT.HEAD marker,
+				COORD-STRAT "" ] ],
+	       LABEL-NAME "SP" ].
+
+喇-crs-label := label &
+	     [ STEM <"喇">,
+	       SYNSEM [ LIGHT +,
+			R-PERIPH +,
+			LOCAL [ CAT.HEAD marker,
+				COORD-STRAT "" ] ],
+	       LABEL-NAME "SP" ].
+
+嚟-crs-label := label &
+	     [ STEM <"嚟">,
+	       SYNSEM [ LIGHT +,
+			R-PERIPH +,
+			LOCAL [ CAT.HEAD marker,
+				COORD-STRAT "" ] ],
+	       LABEL-NAME "SP" ].
+
+嘅-crs-label := label &
+	     [ STEM <"嘅">,
+	       SYNSEM [ LIGHT +,
+			R-PERIPH +,
+			LOCAL [ CAT.HEAD marker,
+				COORD-STRAT "" ] ],
+	       LABEL-NAME "SP" ].
+
+呀-crs-label := label &
+	     [ STEM <"呀">,
+	       SYNSEM [ LIGHT +,
+			R-PERIPH +,
+			LOCAL [ CAT.HEAD marker,
+				COORD-STRAT "" ] ],
+	       LABEL-NAME "SP" ].
+
+qpart-label := label &
+	     [ STEM <"吗">,
+	       SYNSEM [ LIGHT +,
+			R-PERIPH +,
+			LOCAL [ CAT.HEAD marker,
+				COORD-STRAT "" ] ],
+	       LABEL-NAME "SP" ].
+
+suo-label := label & 
+	    [ STEM <"所">,
+	      SYNSEM [ LIGHT +,
+		       R-PERIPH na-or--,
+		       LOCAL [ CAT.HEAD marker,
+			       COORD-STRAT "" ] ],
+	      LABEL-NAME "SUO" ].
+
+adv-mid-label := label & 
+	   [ SYNSEM.LOCAL [ CAT.HEAD adv,
+                            COORD +,
+                            COORD-REL implicit-coord-rel ],
+	     LABEL-NAME "ADV-M" ].
+
+adv-bottom-label := label & 
+	   [ SYNSEM.LOCAL [ CAT.HEAD adv,
+                            COORD + ],
+	     LABEL-NAME "ADV-B" ].
+
+adv-label := label & 
+	     [ SYNSEM.LOCAL [ CAT.HEAD adv,
+                              COORD-STRAT "" ],
+               LABEL-NAME "ADV" ].
+
+adv-top-label := label & 
+	     [ SYNSEM.LOCAL.CAT.HEAD adv,
+	       LABEL-NAME "ADV-T" ].
+
+adj-mid-label := label & 
+	   [ SYNSEM.LOCAL [ CAT.HEAD adj,
+                            COORD +,
+                            COORD-REL implicit-coord-rel ],
+	     LABEL-NAME "ADJ-M" ].
+
+adj-bottom-label := label & 
+	   [ SYNSEM.LOCAL [ CAT.HEAD adj,
+                            COORD + ],
+	     LABEL-NAME "ADJ-B" ].
+
+adj-top-label := label & 
+	   [ SYNSEM.LOCAL [ CAT.HEAD adj,
+                            COORD + ],
+	     LABEL-NAME "ADJ-T" ].
+
+conj-label := label & 
+	      [ SYNSEM.LOCAL.CAT.HEAD conj,
+		LABEL-NAME "CONJ" ].
+
+num-label := label & 
+	     [ SYNSEM.LOCAL.CAT [ HEAD num,
+				  VAL.COMPS < > ],
+	       LABEL-NAME "NUM" ].
+
+
+
+nump-label := label &
+	     [ SYNSEM.LOCAL.CAT [ HEAD num,
+				  VAL [ COMPS < >,
+					SPR < > ]],
+	       LABEL-NAME "NUMP" ].
+
+classifier-label := label &
+	     [ SYNSEM.LOCAL.CAT [ HEAD classifier,
+				  VAL [ COMPS < >,
+					SUBJ < > ]],
+	       LABEL-NAME "CL" ].
+
+
+slash := meta &
+  [ SYNSEM.NON-LOCAL.SLASH 1-dlist &
+			   [ LIST < local > ],
+    META-PREFIX "/",
+    META-SUFFIX "" ].
+
+;; SSH 2014-10-31 for robust parsing 
+bridge-unary := label &
+  [ SYNSEM.LOCAL.CAT.HEAD bridge-head & [ BRIDGED - ],
+    LABEL-NAME "BX" ].
+
+bridge-binary := label &
+  [ SYNSEM.LOCAL.CAT.HEAD bridge-head & [ BRIDGED + ],
+    LABEL-NAME "BP" ].
