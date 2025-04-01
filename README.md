@@ -18,14 +18,14 @@ which is based on the [Grammar Matrix](http://www.delph-in.net/matrix/).
 * Su-Hu-Jia 蘇滬嘉 /səu ɦəu kɑ/
   * Shanghai 上海 /zɑ̃ hᴇ/
     * Urban (Nanshi) 市區（南市） /nø zɿ/
-    * Jiading
-    * Zhenru
-    * Songjiang
-    * Qingpu
-    * Fengxian
-    * Chuansha, Pudong
-    * Nanhui, Zhoupu
-    * Baoshan, Luojing
+    * Jiading 嘉定 /kᴀ diŋ/
+    * Zhenru 真如 /tsəŋ zɿ/
+    * Songjiang 松江 /soŋ kɒ̃/
+    * Qingpu 青浦 /tsʰiŋ pʰu/
+    * Fengxian 奉賢 /ɦʊŋ ɦi/
+    * Chuansha 川沙 /tsʰe siɔ/
+    * Nanhui 南匯 /ne βe/
+    * Baoshan, Luojing 寶山羅涇 /pɔ sɛ lu tɕɪ̃/
     * Chongming 崇明 /dzoŋ ɦmin/
   * Suzhou 蘇州 /səu tsøʏ/
   * Wuxi 無錫 /vu sieʔ/
