@@ -12,7 +12,6 @@ The *DELPH-NG* project attempts to implement grammars for Wu Chinese (ISO 639-3:
 
 *DELPH-NG* is currently attempting to cover the following Wu languages:
 
-(exonym in pinyin, sinographs, endonym transcription without tones because tone sandhi kills me)
 * Su-Hu-Jia, 蘇滬嘉, /səu ɦəu kɑ/
   * Shanghai, 上海, /zɑ̃ hᴇ/
     * Urban (Nanshi), 市區（南市）, /nø zɿ/
