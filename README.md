@@ -15,21 +15,22 @@ which is based on the [Grammar Matrix](http://www.delph-in.net/matrix/).
 
 *DELPH-NG* is currently attempting to cover the following Wu languages:
 
-* Su-Hu-Jia
-  * Shanghai
-    * Urban/Nanshi 
-    * Jiading/Zhenru
+* Su-Hu-Jia 蘇滬嘉 /səu ɦəu kɑ/
+  * Shanghai 上海 /zɒ̃ he/
+    * Urban (Nanshi) 市區（南市） /nø zɪ/
+    * Jiading
+    * Zhenru
     * Songjiang
     * Qingpu
     * Fengxian
-    * Chuansha/Pudong
-    * Nanhui/Zhoupu
-    * Baoshan/Luojing
-    * Chongming
-  * Suzhou
-  * Wuxi
-* Yongjiang
-  * Ningbo
-* Ling-Shao
-  * Shaoxin
+    * Chuansha, Pudong
+    * Nanhui, Zhoupu
+    * Baoshan, Luojing
+    * Chongming 崇明 /dzoŋ ɦmin/
+  * Suzhou 蘇州 /səu tsøʏ/
+  * Wuxi 無錫 /vu sieʔ/
+* Yongjiang 甬江 /yoŋ kɔ̃/
+  * Ningbo 寧波 /ȵiŋ pəu/
+* Lin-Shao 臨紹 /liŋ zɒ/
+  * Shaoxing 紹興 /zɒ ɕiŋ/
 
