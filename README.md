@@ -16,7 +16,7 @@ which is based on the [Grammar Matrix](http://www.delph-in.net/matrix/).
 *DELPH-NG* is currently attempting to cover the following Wu languages:
 
 * Su-Hu-Jia 蘇滬嘉 /səu ɦəu kɑ/
-  * Shanghai 上海 /zɒ̃ he/
+  * Shanghai 上海 /zɑ̃ hᴇ/
     * Urban (Nanshi) 市區（南市） /nø zɿ/
     * Jiading
     * Zhenru
