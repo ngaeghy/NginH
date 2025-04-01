@@ -30,7 +30,7 @@ which is based on the [Grammar Matrix](http://www.delph-in.net/matrix/).
   * Suzhou 蘇州 /səu tsøʏ/
   * Wuxi 無錫 /vu sieʔ/
 * Yongjiang 甬江 /yoŋ kɔ̃/
-  * Ningbo 寧波 /ȵiŋ pəu/
+  * Ningbo 寧波 /ȵiŋ poʔ/
 * Lin-Shao 臨紹 /liŋ zɒ/
   * Shaoxing 紹興 /zɒ ɕiŋ/
 
