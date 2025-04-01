@@ -3,7 +3,7 @@
 # DELPH-NG
 ## Wu grammars in HPSG
 
-The *DELPH-NG* project implements Wu Chinese grammars in [HPSG](http://hpsg.stanford.edu/) using the [DELPH-IN](http://delph-in.net)
+The *DELPH-NG* project implements Wu Chinese (ISO 639-3: wuu) grammars in [HPSG](http://hpsg.stanford.edu/) using the [DELPH-IN](http://delph-in.net)
 infrastructure, based on [*zhong*](https://github.com/delph-in/zhong). *zhong* itself is the core grammar of structures
 hypothesized to be common to all Chinese languages, and this project
 includes grammars for Wu Chinese languages that inherit from the
