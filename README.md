@@ -18,8 +18,8 @@ which is based on the [Grammar Matrix](http://www.delph-in.net/matrix/).
 * Su-Hu-Jia 蘇滬嘉 /səu ɦəu kɑ/
   * Shanghai 上海 /zɑ̃ hᴇ/
     * Urban (Nanshi) 市區（南市） /nø zɿ/
-    * Jiading 嘉定 /kᴀ diŋ/
     * Zhenru 真如 /tsəŋ zɿ/
+    * Jiading 嘉定 /kᴀ diŋ/
     * Songjiang 松江 /soŋ kɒ̃/
     * Qingpu 青浦 /tsʰiŋ pʰu/
     * Fengxian 奉賢 /ɦʊŋ ɦi/
