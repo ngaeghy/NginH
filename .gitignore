@@ -15,3 +15,5 @@ tramp
 
 # Maybe add TSDB results?
 # /tsdb/current
+
+*.DS_Store
