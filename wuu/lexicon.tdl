@@ -55,14 +55,14 @@ check: 弗啊_qp
     SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "了", LENGTH one ],
     TRAITS native_token_list ].
 
-啊_crs := crs_le & 
-  [ STEM <"啊">,
-    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "啊", LENGTH one ],
+嚡_crs := crs_le & 
+  [ STEM <"嚡">,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "嚡", LENGTH one ],
     TRAITS native_token_list ].
 
-呀_crs := crs_le &
-  [ STEM <"呀">,
-    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "呀", LENGTH one ],
+嘢_crs := crs_le &
+  [ STEM <"嘢">,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "嘢", LENGTH one ],
     TRAITS native_token_list ].
 
 啦_crs := crs_le & 
@@ -70,9 +70,14 @@ check: 弗啊_qp
     SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "啦", LENGTH one ],
     TRAITS native_token_list ].
 
-咯_crs := crs_le & 
-  [ STEM <"咯">,
-    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "咯", LENGTH one ],
+哉_crs := crs_le & 
+  [ STEM <"哉">,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "哉", LENGTH one ],
+    TRAITS native_token_list ].
+
+咾_crs := crs_le & 
+  [ STEM <"咾">,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "咾", LENGTH one ],
     TRAITS native_token_list ].
 
 唻_crs := crs_le & 
@@ -169,6 +174,11 @@ This is the normal perfective marker LEH.
 我伲_n := n_-_pr-1pl-incl_le &
   [ STEM < "我伲" >,
     SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "我伲", LENGTH more-than-one ],
+    TRAITS native_token_list ].
+
+我里_n := n_-_pr-1pl-incl_le &
+  [ STEM < "我里" >,
+    SYNSEM.LOCAL.CAT.HEAD.CHAR [ FCHAR "我里", LENGTH more-than-one ],
     TRAITS native_token_list ].
 
 㑚_n := n_-_pr-2pl_le &
