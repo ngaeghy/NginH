@@ -25,7 +25,7 @@ which is based on the [Grammar Matrix](http://www.delph-in.net/matrix/).
     * Fengxian 奉賢 /ɦʊŋ ɦi/
     * Chuansha 川沙 /tsʰe siɔ/
     * Nanhui 南匯 /ne βe/
-    * Baoshan, Luojing 寶山羅涇 /pɔ sɛ lu tɕɪ̃/
+    * Baoshan Luojing 寶山羅涇 /pɔ sɛ lu tɕɪ̃/
     * Chongming 崇明 /dzoŋ ɦmin/
   * Suzhou 蘇州 /səu tsøʏ/
   * Wuxi 無錫 /vu sieʔ/
