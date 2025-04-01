@@ -12,27 +12,27 @@ The *DELPH-NG* project attempts to implement grammars for Wu Chinese (ISO 639-3:
 
 *DELPH-NG* is currently attempting to cover the following Wu languages:
 
-(exonym in pinyin, orthography, endonym transcription without tones because tone sandhi kills me)
-* Su-Hu-Jia 蘇滬嘉 /səu ɦəu kɑ/
-  * Shanghai 上海 /zɑ̃ hᴇ/
-    * Urban (Nanshi) 市區（南市） /nø zɿ/
-    * Zhenru 真如 /tsəŋ zɿ/
-    * Jiading 嘉定 /kᴀ diŋ/
-    * Songjiang 松江 /soŋ kɒ̃/
-    * Qingpu 青浦 /tsʰiŋ pʰu/
-    * Fengxian 奉賢 /ɦʊŋ ɦi/
-    * Chuansha 川沙 /tsʰe siɔ/
-    * Nanhui 南匯 /ne βe/
-    * Baoshan Luojing 寶山羅涇 /pɔ sɛ lu tɕɪ̃/
-    * Chongming 崇明 /dzoŋ ɦmin/
-  * Suzhou 蘇州 /səu tsøʏ/
-  * Wuxi 無錫 /vu sieʔ/
-* Lin-Shao 臨紹 /liŋ zɒ/
-  * Shaoxing 紹興 /zɒ ɕiŋ/
-  * Yuyao 餘姚 /ɦy ɦiɔ/
-  * Cixi 慈溪 /dzɿ tɕʰi/
-* Yongjiang 甬江 /yoŋ kɔ̃/
-  * Ningbo 寧波 /ȵiŋ poʔ/
+(exonym in pinyin, sinographs, endonym transcription without tones because tone sandhi kills me)
+* Su-Hu-Jia, 蘇滬嘉, /səu ɦəu kɑ/
+  * Shanghai, 上海, /zɑ̃ hᴇ/
+    * Urban (Nanshi), 市區（南市）, /nø zɿ/
+    * Zhenru, 真如, /tsəŋ zɿ/
+    * Jiading, 嘉定, /kᴀ diŋ/
+    * Songjiang, 松江, /soŋ kɒ̃/
+    * Qingpu, 青浦, /tsʰiŋ pʰu/
+    * Fengxian, 奉賢, /ɦʊŋ ɦi/
+    * Chuansha, 川沙, /tsʰe siɔ/
+    * Nanhui, 南匯, /ne βe/
+    * Baoshan Luojing, 寶山羅涇, /pɔ sɛ lu tɕɪ̃/
+    * Chongming, 崇明, /dzoŋ ɦmin/
+  * Suzhou, 蘇州, /səu tsøʏ/
+  * Wuxi, 無錫, /vu sieʔ/
+* Lin-Shao, 臨紹, /liŋ zɒ/
+  * Shaoxing, 紹興, /zɒ ɕiŋ/
+  * Yuyao, 餘姚, /ɦy ɦiɔ/
+  * Cixi, 慈溪, /dzɿ tɕʰi/
+* Yongjiang, 甬江, /yoŋ kɔ̃/
+  * Ningbo, 寧波, /ȵiŋ poʔ/
 
 The language locations and their name transcriptions take reference from [
 吳語學堂 (Ng Language Institute)](https://wugniu.com/)
