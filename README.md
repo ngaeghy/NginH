@@ -17,7 +17,7 @@ which is based on the [Grammar Matrix](http://www.delph-in.net/matrix/).
 
 * Su-Hu-Jia 蘇滬嘉 /səu ɦəu kɑ/
   * Shanghai 上海 /zɒ̃ he/
-    * Urban (Nanshi) 市區（南市） /nø zɪ/
+    * Urban (Nanshi) 市區（南市） /nø zɿ/
     * Jiading
     * Zhenru
     * Songjiang
