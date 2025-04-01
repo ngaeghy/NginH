@@ -33,5 +33,5 @@ The *DELPH-NG* project attempts to implement grammars for Wu Chinese (ISO 639-3:
 * Yongjiang 甬江 /yoŋ kɔ̃/
   * Ningbo 寧波 /ȵiŋ poʔ/
 
-The language locations and their transcriptions take reference from [
+The language locations and their name transcriptions take reference from [
 吳語學堂 (Ng Language Institute)](https://wugniu.com/)
