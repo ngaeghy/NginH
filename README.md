@@ -8,7 +8,7 @@ The *NginH* project attempts to implement grammars for Wu Chinese (ISO 639-3: wu
 
 ## Work in progress
 
-*DELPH-NG* is currently attempting to cover the following Wu languages:
+*NginH* is currently attempting to cover the following Wu languages:
 
 * Su-Hu-Jia, 蘇滬嘉, /səu ɦəu kɑ/
   * Shanghai, 上海, /zɑ̃ hᴇ/
