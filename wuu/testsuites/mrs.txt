@@ -4,4 +4,42 @@ Lines: orth translit gloss translat
 Author: Ghau Yan Ngae
 Date: 2025-03-31
 
-......
+### Id: 1 sh
+Source: MRS
+Vetted: t
+Judgment: g
+Phenomena: tam
+落 雨 了
+loq8    yu6     leq8
+fall    rain    SFP
+"It rained."
+
+### Id: 2 sh
+Source: MRS
+Vetted: t
+Judgment: g
+Phenomena: tam
+阿二头 叫 了
+aq7gni6deu6     ciau5   leq8
+Agnideu         bark    SFP
+"Agnideu barked."
+
+### Id: 3 sh
+Source: MRS
+Vetted: t
+Judgment: g
+Phenomena: tam
+窗门 开 了
+tshaon1men6     khe1    leq8
+Window          open    ASP
+"The window opened."
+
+### Id: 4
+Source: MRS
+Vetted: t
+Judgment: g
+Phenomena: tam
+阿二头 追 了 阿三头
+aq7gni6deu6     tsoe1   leq8    aq7se1deu6
+Agnideu         chase   SFP     Asedeu
+"Agnideu chased Asedeu."
